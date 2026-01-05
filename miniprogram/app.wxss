@@ -1,0 +1,16 @@
+/**app.wxss**/
+page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.container {
+  background: white;
+  border-radius: 20rpx;
+  padding: 40rpx;
+  margin: 20rpx 0;
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
+}
+

@@ -1,0 +1,64 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <view class="header">
+    <text class="title">🎭 AI 情绪表情生成器</text>
+    <text class="subtitle">上传图片，AI 自动生成不同情绪的表情图片</text>
+  </view>
+
+  <!-- 上传区域 -->
+  <view class="upload-area" bindtap="chooseImage">
+    <image wx:if="{{previewImage}}" src="{{previewImage}}" class="preview-image" mode="aspectFit"></image>
+    <view wx:else class="upload-placeholder">
+      <text class="upload-icon">📸</text>
+      <text class="upload-text">点击选择图片</text>
+      <text class="upload-hint">支持 JPG、PNG 格式，最大 10MB</text>
+    </view>
+  </view>
+
+  <!-- 文件信息 -->
+  <view wx:if="{{fileInfo}}" class="file-info">{{fileInfo}}</view>
+
+  <!-- 情绪选择 -->
+  <view class="emotion-selector">
+    <text class="emotion-label">选择情绪：</text>
+    <view class="emotion-buttons">
+      <view 
+        wx:for="{{emotions}}" 
+        wx:key="englishName"
+        class="emotion-btn {{selectedEmotion === item.englishName ? 'active' : ''}}"
+        bindtap="selectEmotion"
+        data-emotion="{{item.englishName}}"
+      >
+        <text class="emotion-icon">{{item.icon}}</text>
+        <text class="emotion-text">{{item.chineseName}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 生成按钮 -->
+  <button 
+    class="generate-btn {{canGenerate ? '' : 'disabled'}}" 
+    bindtap="generateMeme"
+    disabled="{{!canGenerate || loading}}"
+  >
+    {{loading ? '生成中...' : '生成情绪表情'}}
+  </button>
+
+  <!-- 加载提示 -->
+  <view wx:if="{{loading}}" class="loading">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">AI 正在生成情绪表情图片...</text>
+  </view>
+
+  <!-- 错误提示 -->
+  <view wx:if="{{error}}" class="error">{{error}}</view>
+
+  <!-- 结果展示 -->
+  <view wx:if="{{resultImageUrl}}" class="result-area">
+    <text class="result-title">✨ {{resultEmotion}}表情生成完成！</text>
+    <image src="{{resultImageUrl}}" class="result-image" mode="aspectFit" bindtap="previewImage"></image>
+    <button class="action-btn" bindtap="saveImage">保存到相册</button>
+    <button class="action-btn secondary" bindtap="reset">重新生成</button>
+  </view>
+</view>
+
