@@ -1,23 +1,41 @@
-# 表情包生成 MVP 项目
+# AI 情绪表情生成器
+
+[![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## 项目介绍
 
-这是一个基于 Spring Boot 的图片表情包自动生成服务。用户上传一张图片，系统通过 AI 多模态模型理解图片内容，自动生成适合的中文文案，并将文案绘制到图片上生成表情包。
+这是一个基于 Spring Boot 的 AI 情绪表情生成服务。用户上传一张图片，系统通过阿里云百炼多模态模型理解图片内容，自动生成不同情绪的表情图片。
+
+**支持平台**：
+- 🌐 Web 版本（浏览器访问）
+- 📱 微信小程序版本
 
 **核心功能**：
-- 📸 图片上传
-- 🤖 AI 自动理解图片内容
-- ✍️ 自动生成表情包文案
-- 🎨 文案绘制到图片（白字黑描边，底部居中）
-- 📥 返回生成的表情包 URL
+- 📸 图片上传（支持 Web 和小程序）
+- 🤖 AI 自动理解图片内容（多模态视觉模型）
+- 🎭 8 种情绪类型选择（高兴、伤心、生气等）
+- 🎨 AI 自动生成情绪表情图片
+- 📥 返回生成的表情包 URL（支持 OSS 直链）
 
 ## 技术栈
 
+### 后端
 - **Java 17**
 - **Spring Boot 3.2.0**
 - **Maven**
-- **Java Graphics2D**（图片处理）
-- **OpenAI API**（多模态模型，可替换）
+- **阿里云 DashScope SDK**（多模态 AI）
+- **Spring AI Alibaba**（AI 集成框架）
+
+### 前端
+- **Web**: HTML + CSS + JavaScript
+- **小程序**: 微信小程序原生开发
+
+### AI 服务
+- **阿里云百炼**（DashScope）
+  - 视觉理解：`qwen-vl-plus`
+  - 图像生成：`qwen-image`
 
 ## 快速开始
 
@@ -25,17 +43,23 @@
 
 - JDK 17 或更高版本
 - Maven 3.6+
-- OpenAI API Key（可选，如果 API 不可用会使用模拟数据）
+- 阿里云百炼 API Key（可选，如果 API 不可用会使用模拟数据）
 
 ### 2. 配置 API Key
 
-编辑 `src/main/resources/application.yml`，将 `YOUR_API_KEY` 替换为你的 OpenAI API Key：
+编辑 `src/main/resources/application.yml`，将 `YOUR_API_KEY` 替换为你的阿里云百炼 API Key：
 
 ```yaml
-ai:
-  openai:
-    api-key: YOUR_API_KEY  # 替换为你的 API Key
+spring:
+  ai:
+    dashscope:
+      api-key: YOUR_API_KEY  # 替换为你的阿里云百炼 API Key
 ```
+
+**获取 API Key**：
+1. 访问 [阿里云百炼控制台](https://dashscope.console.aliyun.com/)
+2. 创建 API Key
+3. 将 Key 配置到 `application.yml`
 
 **注意**：如果没有 API Key 或 API 调用失败，系统会自动使用模拟数据，不影响功能测试。
 
@@ -141,14 +165,26 @@ emoji-project/
 │   ├── service/
 │   │   ├── MemeService.java          # 业务逻辑服务
 │   │   ├── AiService.java            # AI 服务封装
-│   │   └── ImageComposeService.java  # 图片合成服务
+│   │   ├── ImageGenerateService.java # 图像生成服务
+│   │   └── ImageComposeService.java # 图片合成服务（已废弃）
 │   ├── model/
-│   │   └── ImageUnderstandResult.java # AI 返回结果模型
-│   └── client/
-│       └── AiClient.java             # AI 客户端
+│   │   ├── EmotionType.java          # 情绪类型枚举
+│   │   ├── ImageUnderstandResult.java # AI 理解结果模型
+│   │   └── ImageGenerateResult.java  # 图像生成结果模型
+│   ├── client/
+│   │   └── AiClient.java             # AI 客户端（DashScope SDK）
+│   └── config/
+│       └── WebConfig.java             # Web 配置（静态资源映射）
 ├── src/main/resources/
 │   ├── application.yml               # 配置文件
-│   └── static/output/                # 生成的表情包存储目录
+│   └── static/
+│       ├── index.html                 # Web 前端页面
+│       └── output/                   # 生成的表情包存储目录
+├── miniprogram/                      # 微信小程序版本
+│   ├── app.js                        # 小程序入口
+│   ├── app.json                      # 小程序配置
+│   ├── pages/index/                  # 主页面
+│   └── README.md                     # 小程序说明
 ├── pom.xml                           # Maven 配置
 ├── design.md                         # 设计文档
 └── README.md                         # 本文件
@@ -168,10 +204,11 @@ emoji-project/
 - 位置：底部居中
 - 大小：40px
 
-### AI 文案生成
-- 调用 OpenAI GPT-4 Vision 模型（或类似多模态模型）
-- 自动理解图片内容和情绪
-- 生成适合的表情包文案（不超过 10 个字）
+### AI 图像生成
+- 使用阿里云百炼 DashScope SDK
+- 视觉理解：`qwen-vl-plus` 模型理解图片内容
+- 图像生成：`qwen-image` 模型生成情绪表情图片
+- 支持 8 种情绪类型：高兴、伤心、生气、惊讶、困惑、兴奋、平静、害羞
 - 如果 API 不可用，自动使用模拟数据
 
 ## 常见问题
@@ -188,16 +225,38 @@ emoji-project/
 ### 4. 图片访问 404
 确保 `src/main/resources/static/output/` 目录存在，并且 Spring Boot 的静态资源路径配置正确。
 
+## 平台支持
+
+### Web 版本
+- 访问地址：`http://localhost:8080`
+- 支持拖拽上传图片
+- 响应式设计，支持移动端
+
+### 微信小程序版本
+- 项目路径：`miniprogram/`
+- 详细说明：查看 [miniprogram/README.md](miniprogram/README.md)
+- 支持相册选择和拍照
+- 支持保存图片到相册
+
 ## 后续扩展方向
 
 - 支持更多图片格式
-- 自定义文字样式（颜色、大小、位置）
+- 自定义情绪类型
 - 批量处理多张图片
-- 集成其他 AI 模型（Claude、通义千问等）
-- 添加前端界面
-- 云存储集成
+- 集成其他 AI 模型
+- 云存储集成（OSS、COS 等）
+- 用户系统（可选）
+- 历史记录功能
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
 
 ## 许可证
 
 MIT License
+
+## GitHub 仓库
+
+项目地址：https://github.com/jingjize/emoji-project
 
