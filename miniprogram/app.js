@@ -7,8 +7,9 @@ App({
   
   globalData: {
     // 后端 API 地址，需要根据实际情况修改
-    apiBaseUrl: 'http://localhost:8080/api/meme',
-    // 如果部署到服务器，修改为：https://your-domain.com/api/meme
+    // apiBaseUrl: 'http://localhost:8080/api/meme',
+    apiBaseUrl: 'http://121.89.95.140:8080/api/meme',
+    // 如果部署到服务器，修改为：https://121.89.95.140/api/meme
   }
 })
 

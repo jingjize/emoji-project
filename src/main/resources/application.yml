@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8443
   servlet:
     context-path: /
 
@@ -16,7 +16,7 @@ spring:
   ai:
     dashscope:
       # 需要替换为你自己的 key
-      api-key: YOUR_API_KEY
+      api-key: sk-16c3d623ea964836ae1b4ff1f1138c1e
       chat:
         options:
           model: qwen-vl-plus  # 使用视觉模型支持图片理解，也可使用 qwen3-vl-plus

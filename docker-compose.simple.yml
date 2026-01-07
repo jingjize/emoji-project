@@ -1,0 +1,35 @@
+version: '3.8'
+
+# 简单部署配置（前后端一体）
+# Spring Boot 内置前端静态资源，无需单独的前端容器
+
+services:
+  meme-generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: emoji-project
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_AI_DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY}
+      - FILE_UPLOAD_DIR=/app/output
+      - FILE_BASE_URL=${FILE_BASE_URL:-http://localhost:8080}
+    volumes:
+      - ./output:/app/output
+      - ./logs:/app/logs
+    networks:
+      - emoji-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/meme/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+networks:
+      emoji-network:
+        driver: bridge
+

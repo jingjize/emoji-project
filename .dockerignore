@@ -1,0 +1,67 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+*.iml
+*.iws
+*.ipr
+.vscode
+.settings
+.classpath
+.project
+
+# Maven
+target
+.mvn
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# 生成的文件
+output
+*.jpg
+*.png
+*.gif
+*.jpeg
+
+# 日志
+logs
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# 文档（可选）
+README.md
+design.md
+*.md
+
+# 小程序（不需要在 Docker 镜像中）
+miniprogram
+
+# 临时文件
+tmp
+temp
+*.tmp
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# Docker 相关
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
