@@ -35,6 +35,109 @@
     </view>
   </view>
 
+  <!-- 自定义文字输入 -->
+  <view class="text-input-area">
+    <text class="text-input-label">自定义文字（可选）：</text>
+    <input 
+      class="text-input" 
+      type="text" 
+      placeholder="输入你想添加到图片上的文字，留空则不添加文字"
+      value="{{customText}}"
+      bindinput="onTextInput"
+      maxlength="50"
+    />
+    <text class="text-input-hint">文字将显示在图片中间，支持自动换行</text>
+  </view>
+
+  <!-- 文字样式设置 -->
+  <view class="style-section">
+    <view class="style-section-header" bindtap="toggleTextStyle">
+      <text class="style-section-title">文字样式设置</text>
+      <text class="style-section-arrow">{{textStyleExpanded ? '▼' : '▶'}}</text>
+    </view>
+    <view class="style-section-content" wx:if="{{textStyleExpanded}}">
+      <view class="style-row">
+        <text class="style-label">文字位置：</text>
+        <picker mode="selector" range="{{positionOptions}}" range-key="label" value="{{textPositionIndex}}" bindchange="onPositionChange">
+          <view class="style-picker">{{positionOptions[textPositionIndex].label}}</view>
+        </picker>
+      </view>
+      <view class="style-row">
+        <text class="style-label">字体大小：</text>
+        <slider 
+          value="{{fontSize}}" 
+          min="20" 
+          max="100" 
+          step="5"
+          show-value
+          bindchange="onFontSizeChange"
+          activeColor="#667eea"
+        />
+      </view>
+      <view class="style-row">
+        <text class="style-label">文字颜色：</text>
+        <view class="color-picker-wrapper">
+          <view class="color-preview" style="background: rgb({{textColorRgb}})" bindtap="showColorPicker" data-type="text"></view>
+          <input 
+            class="color-input" 
+            type="text" 
+            value="{{textColorRgb}}" 
+            placeholder="255,255,255"
+            bindinput="onTextColorInput"
+            maxlength="11"
+          />
+        </view>
+      </view>
+      <view class="style-row">
+        <text class="style-label">描边颜色：</text>
+        <view class="color-picker-wrapper">
+          <view class="color-preview" style="background: rgb({{strokeColorRgb}})" bindtap="showColorPicker" data-type="stroke"></view>
+          <input 
+            class="color-input" 
+            type="text" 
+            value="{{strokeColorRgb}}" 
+            placeholder="0,0,0"
+            bindinput="onStrokeColorInput"
+            maxlength="11"
+          />
+        </view>
+      </view>
+      <view class="style-row">
+        <text class="style-label">描边宽度：</text>
+        <slider 
+          value="{{strokeWidth}}" 
+          min="1" 
+          max="10" 
+          step="1"
+          show-value
+          bindchange="onStrokeWidthChange"
+          activeColor="#667eea"
+        />
+      </view>
+    </view>
+  </view>
+
+  <!-- 滤镜选择 -->
+  <view class="style-section">
+    <view class="style-section-header" bindtap="toggleFilter">
+      <text class="style-section-title">滤镜效果</text>
+      <text class="style-section-arrow">{{filterExpanded ? '▼' : '▶'}}</text>
+    </view>
+    <view class="style-section-content" wx:if="{{filterExpanded}}">
+      <view class="filter-buttons">
+        <view 
+          wx:for="{{filters}}" 
+          wx:key="code"
+          class="filter-btn {{selectedFilter === item.code ? 'active' : ''}}"
+          bindtap="selectFilter"
+          data-filter="{{item.code}}"
+        >
+          <text class="filter-text">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
   <!-- 生成按钮 -->
   <button 
     class="generate-btn {{canGenerate ? '' : 'disabled'}}" 

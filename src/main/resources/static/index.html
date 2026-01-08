@@ -245,6 +245,159 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
+
+        .text-input-area {
+            margin: 20px 0;
+        }
+
+        .text-input-label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .text-input-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .style-section {
+            margin: 20px 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+
+        .style-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .style-section-title::after {
+            content: '▼';
+            font-size: 12px;
+            transition: transform 0.3s;
+        }
+
+        .style-section.collapsed .style-section-title::after {
+            transform: rotate(-90deg);
+        }
+
+        .style-section-content {
+            display: block;
+        }
+
+        .style-section.collapsed .style-section-content {
+            display: none;
+        }
+
+        .style-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .style-label {
+            font-size: 13px;
+            color: #666;
+            min-width: 80px;
+        }
+
+        .style-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .style-select {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .color-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .color-input {
+            width: 100px;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -274,6 +427,81 @@
                     <button class="emotion-btn" data-emotion="excited">🤩 兴奋</button>
                     <button class="emotion-btn" data-emotion="calm">😌 平静</button>
                     <button class="emotion-btn" data-emotion="shy">😳 害羞</button>
+                    <button class="emotion-btn" data-emotion="playful">😜 调皮</button>
+                </div>
+            </div>
+
+            <div class="text-input-area">
+                <div class="text-input-label">自定义文字（可选）：</div>
+                <input 
+                    type="text" 
+                    id="customText" 
+                    class="text-input" 
+                    placeholder="输入你想添加到图片上的文字，留空则不添加文字"
+                    maxlength="50"
+                >
+                <div class="text-input-hint">文字将显示在图片中间，支持自动换行</div>
+            </div>
+
+            <!-- 文字样式设置 -->
+            <div class="style-section" id="textStyleSection">
+                <div class="style-section-title" onclick="toggleSection('textStyleSection')">
+                    文字样式设置
+                </div>
+                <div class="style-section-content">
+                    <div class="style-row">
+                        <label class="style-label">文字位置：</label>
+                        <select id="textPosition" class="style-select">
+                            <option value="center">中间</option>
+                            <option value="top">顶部</option>
+                            <option value="bottom">底部</option>
+                        </select>
+                    </div>
+                    <div class="style-row">
+                        <label class="style-label">字体大小：</label>
+                        <input type="number" id="fontSize" class="style-input" value="40" min="20" max="100">
+                    </div>
+                    <div class="style-row">
+                        <label class="style-label">文字颜色：</label>
+                        <div class="color-input-wrapper">
+                            <div class="color-preview" id="textColorPreview" style="background: rgb(255,255,255)" onclick="document.getElementById('textColor').click()"></div>
+                            <input type="color" id="textColor" class="color-input" value="#ffffff" style="display:none">
+                            <input type="text" id="textColorRgb" class="style-input" value="255,255,255" placeholder="RGB格式，如：255,255,255">
+                        </div>
+                    </div>
+                    <div class="style-row">
+                        <label class="style-label">描边颜色：</label>
+                        <div class="color-input-wrapper">
+                            <div class="color-preview" id="strokeColorPreview" style="background: rgb(0,0,0)" onclick="document.getElementById('strokeColor').click()"></div>
+                            <input type="color" id="strokeColor" class="color-input" value="#000000" style="display:none">
+                            <input type="text" id="strokeColorRgb" class="style-input" value="0,0,0" placeholder="RGB格式，如：0,0,0">
+                        </div>
+                    </div>
+                    <div class="style-row">
+                        <label class="style-label">描边宽度：</label>
+                        <input type="number" id="strokeWidth" class="style-input" value="3" min="1" max="10">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 滤镜选择 -->
+            <div class="style-section" id="filterSection">
+                <div class="style-section-title" onclick="toggleSection('filterSection')">
+                    滤镜效果
+                </div>
+                <div class="style-section-content">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="none">无滤镜</button>
+                        <button class="filter-btn" data-filter="grayscale">黑白</button>
+                        <button class="filter-btn" data-filter="vintage">复古</button>
+                        <button class="filter-btn" data-filter="bright">明亮</button>
+                        <button class="filter-btn" data-filter="dark">暗调</button>
+                        <button class="filter-btn" data-filter="warm">暖色</button>
+                        <button class="filter-btn" data-filter="cool">冷色</button>
+                        <button class="filter-btn" data-filter="sepia">怀旧</button>
+                        <button class="filter-btn" data-filter="contrast">高对比</button>
+                        <button class="filter-btn" data-filter="saturate">高饱和</button>
+                    </div>
                 </div>
             </div>
             
@@ -307,9 +535,11 @@
         const resultArea = document.getElementById('resultArea');
         const resultImage = document.getElementById('resultImage');
 
+        const customTextInput = document.getElementById('customText');
         let selectedFile = null;
         let resultImageUrl = null;
         let selectedEmotion = 'happy';
+        let selectedFilter = 'none';
 
         // 点击上传区域
         uploadArea.addEventListener('click', () => {
@@ -378,6 +608,46 @@
             });
         });
 
+        // 滤镜选择按钮事件
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedFilter = btn.getAttribute('data-filter');
+            });
+        });
+
+        // 颜色选择器事件
+        document.getElementById('textColor').addEventListener('change', (e) => {
+            const color = e.target.value;
+            const rgb = hexToRgb(color);
+            document.getElementById('textColorRgb').value = rgb;
+            document.getElementById('textColorPreview').style.background = `rgb(${rgb})`;
+        });
+
+        document.getElementById('textColorRgb').addEventListener('input', (e) => {
+            const rgb = e.target.value;
+            if (/^\d+,\d+,\d+$/.test(rgb)) {
+                const [r, g, b] = rgb.split(',').map(Number);
+                document.getElementById('textColorPreview').style.background = `rgb(${r},${g},${b})`;
+            }
+        });
+
+        document.getElementById('strokeColor').addEventListener('change', (e) => {
+            const color = e.target.value;
+            const rgb = hexToRgb(color);
+            document.getElementById('strokeColorRgb').value = rgb;
+            document.getElementById('strokeColorPreview').style.background = `rgb(${rgb})`;
+        });
+
+        document.getElementById('strokeColorRgb').addEventListener('input', (e) => {
+            const rgb = e.target.value;
+            if (/^\d+,\d+,\d+$/.test(rgb)) {
+                const [r, g, b] = rgb.split(',').map(Number);
+                document.getElementById('strokeColorPreview').style.background = `rgb(${r},${g},${b})`;
+            }
+        });
+
         // 生成情绪表情
         generateBtn.addEventListener('click', async () => {
             if (!selectedFile) {
@@ -395,6 +665,31 @@
             const formData = new FormData();
             formData.append('image', selectedFile);
             formData.append('emotion', selectedEmotion);
+            
+            // 如果输入了自定义文字，添加到请求中
+            const customText = customTextInput.value.trim();
+            if (customText) {
+                formData.append('text', customText);
+                
+                // 构建文字样式JSON
+                const textStyle = {
+                    textColor: document.getElementById('textColorRgb').value,
+                    strokeColor: document.getElementById('strokeColorRgb').value,
+                    strokeWidth: parseInt(document.getElementById('strokeWidth').value),
+                    fontSize: parseInt(document.getElementById('fontSize').value),
+                    position: document.getElementById('textPosition').value,
+                    fontName: 'SimHei',
+                    opacity: 1.0,
+                    rotation: 0,
+                    enableShadow: false
+                };
+                formData.append('textStyle', JSON.stringify(textStyle));
+            }
+            
+            // 添加滤镜参数
+            if (selectedFilter && selectedFilter !== 'none') {
+                formData.append('filter', selectedFilter);
+            }
 
             try {
                 const response = await fetch('/api/meme/generate', {
@@ -440,6 +735,7 @@
             previewArea.classList.remove('active');
             resultArea.classList.remove('active');
             fileInput.value = '';
+            customTextInput.value = '';
             hideError();
         }
 
@@ -452,6 +748,21 @@
         // 隐藏错误
         function hideError() {
             error.classList.remove('active');
+        }
+
+        // 切换折叠区域
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('collapsed');
+        }
+
+        // 十六进制转RGB
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            if (result) {
+                return `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}`;
+            }
+            return '255,255,255';
         }
     </script>
 </body>

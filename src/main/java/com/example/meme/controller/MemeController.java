@@ -1,6 +1,7 @@
 package com.example.meme.controller;
 
 import com.example.meme.model.EmotionType;
+import com.example.meme.model.FilterType;
 import com.example.meme.service.MemeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +28,18 @@ public class MemeController {
      * 
      * @param image 上传的图片文件
      * @param emotion 情绪类型（happy, sad, angry, surprised, confused, excited, calm, shy）
+     * @param text 自定义文字（可选），如果提供，会将文字绘制到生成的图片上
+     * @param textStyle 文字样式JSON（可选），格式：{"textColor":"255,255,255","strokeColor":"0,0,0","fontSize":40,"position":"center",...}
+     * @param filter 滤镜类型（可选），none, grayscale, vintage, bright, dark, warm, cool, sepia, contrast, saturate
      * @return 生成结果，包含图片 URL
      */
     @PostMapping("/generate")
     public ResponseEntity<Map<String, Object>> generateEmotionImage(
             @RequestParam("image") MultipartFile image,
-            @RequestParam(value = "emotion", defaultValue = "happy") String emotion) {
+            @RequestParam(value = "emotion", defaultValue = "happy") String emotion,
+            @RequestParam(value = "text", required = false) String text,
+            @RequestParam(value = "textStyle", required = false) String textStyle,
+            @RequestParam(value = "filter", required = false) String filter) {
         
         Map<String, Object> response = new HashMap<>();
         
@@ -45,8 +52,11 @@ public class MemeController {
                 emotionType = EmotionType.HAPPY; // 默认使用高兴
             }
             
+            // 解析滤镜类型
+            FilterType filterType = FilterType.fromCode(filter);
+            
             // 调用服务生成情绪表情图片
-            String imageUrl = memeService.generateEmotionImage(image, emotionType);
+            String imageUrl = memeService.generateEmotionImage(image, emotionType, text, textStyle, filterType);
             
             response.put("success", true);
             response.put("message", emotionType.getChineseName() + "表情图片生成成功");
@@ -88,6 +98,27 @@ public class MemeController {
         
         response.put("success", true);
         response.put("emotions", emotions);
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
+     * 获取所有支持的滤镜类型
+     */
+    @GetMapping("/filters")
+    public ResponseEntity<Map<String, Object>> getFilters() {
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Map<String, String>> filters = new HashMap<>();
+        
+        for (FilterType type : FilterType.values()) {
+            Map<String, String> filterInfo = new HashMap<>();
+            filterInfo.put("name", type.getName());
+            filterInfo.put("description", type.getDescription());
+            filters.put(type.getCode(), filterInfo);
+        }
+        
+        response.put("success", true);
+        response.put("filters", filters);
         
         return ResponseEntity.ok(response);
     }

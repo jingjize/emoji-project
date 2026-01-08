@@ -1,12 +1,18 @@
 package com.example.meme.service;
 
 import com.example.meme.model.EmotionType;
+import com.example.meme.model.FilterType;
 import com.example.meme.model.ImageUnderstandResult;
+import com.example.meme.model.TextStyle;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 
 /**
  * 表情包生成服务
@@ -24,15 +30,28 @@ public class MemeService {
     @Autowired
     private ImageGenerateService imageGenerateService;
     
+    @Autowired
+    private FilterService filterService;
+    
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    
     /**
-     * 生成情绪表情图片
+     * 生成情绪表情图片（支持样式和滤镜）
      * 
      * @param imageFile 上传的图片文件
      * @param emotionType 情绪类型
+     * @param customText 自定义文字（可选）
+     * @param textStyleJson 文字样式JSON（可选）
+     * @param filterType 滤镜类型（可选）
      * @return 生成的表情包图片 URL
      * @throws IOException 文件处理异常
      */
-    public String generateEmotionImage(MultipartFile imageFile, EmotionType emotionType) throws IOException {
+    public String generateEmotionImage(
+            MultipartFile imageFile, 
+            EmotionType emotionType, 
+            String customText,
+            String textStyleJson,
+            FilterType filterType) throws IOException {
         // 1. 验证文件
         validateImageFile(imageFile);
         
@@ -44,7 +63,86 @@ public class MemeService {
         
         System.out.println("AI 生成的" + emotionType.getChineseName() + "表情图片: " + imageUrl);
         
+        // 4. 下载生成的图片（如果是 OSS URL）
+        byte[] generatedImageBytes = downloadImage(imageUrl);
+        
+        // 5. 应用滤镜（如果需要）
+        if (filterType != null && filterType != FilterType.NONE) {
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(generatedImageBytes));
+            BufferedImage filteredImage = filterService.applyFilter(image, filterType);
+            
+            // 将处理后的图片转换为字节数组
+            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+            ImageIO.write(filteredImage, "png", baos);
+            generatedImageBytes = baos.toByteArray();
+            System.out.println("已应用滤镜: " + filterType.getName());
+        }
+        
+        // 6. 如果提供了自定义文字，将文字绘制到生成的图片上
+        if (customText != null && !customText.trim().isEmpty()) {
+            // 解析文字样式
+            TextStyle textStyle = parseTextStyle(textStyleJson);
+            
+            // 将文字绘制到图片上
+            imageUrl = imageComposeService.composeImage(generatedImageBytes, customText.trim(), textStyle);
+            System.out.println("已添加自定义文字: " + customText);
+        }
+        
         return imageUrl;
+    }
+    
+    /**
+     * 生成情绪表情图片（兼容旧版本）
+     */
+    public String generateEmotionImage(MultipartFile imageFile, EmotionType emotionType, String customText) throws IOException {
+        return generateEmotionImage(imageFile, emotionType, customText, null, null);
+    }
+    
+    /**
+     * 解析文字样式JSON
+     */
+    private TextStyle parseTextStyle(String textStyleJson) {
+        if (textStyleJson == null || textStyleJson.trim().isEmpty()) {
+            return new TextStyle(); // 返回默认样式
+        }
+        
+        try {
+            return objectMapper.readValue(textStyleJson, TextStyle.class);
+        } catch (Exception e) {
+            System.out.println("解析文字样式失败，使用默认样式: " + e.getMessage());
+            return new TextStyle();
+        }
+    }
+    
+    /**
+     * 下载图片（支持 HTTP/HTTPS URL 和本地路径）
+     * 
+     * @param imageUrl 图片 URL
+     * @return 图片字节数组
+     * @throws IOException 下载失败
+     */
+    private byte[] downloadImage(String imageUrl) throws IOException {
+        // 如果是 HTTP/HTTPS URL，需要下载
+        if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+            try {
+                java.net.URL url = new java.net.URL(imageUrl);
+                try (java.io.InputStream in = url.openStream()) {
+                    return in.readAllBytes();
+                }
+            } catch (Exception e) {
+                throw new IOException("下载图片失败: " + e.getMessage(), e);
+            }
+        }
+        
+        // 如果是本地路径，直接读取
+        if (imageUrl.startsWith("/output/")) {
+            String fileName = imageUrl.substring("/output/".length());
+            String projectRoot = System.getProperty("user.dir");
+            java.nio.file.Path filePath = java.nio.file.Paths.get(projectRoot, "output", fileName);
+            return java.nio.file.Files.readAllBytes(filePath);
+        }
+        
+        throw new IOException("不支持的图片 URL 格式: " + imageUrl);
     }
     
     /**

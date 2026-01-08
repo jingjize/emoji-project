@@ -11,7 +11,8 @@ public enum EmotionType {
     CONFUSED("困惑", "confused", "一个困惑、迷茫、疑惑的表情"),
     EXCITED("兴奋", "excited", "一个兴奋、激动、手舞足蹈的表情"),
     CALM("平静", "calm", "一个平静、安详、放松的表情"),
-    SHY("害羞", "shy", "一个害羞、腼腆、脸红的表情");
+    SHY("害羞", "shy", "一个害羞、腼腆、脸红的表情"),
+    PLAYFUL("调皮", "playful", "一个调皮、搞怪、顽皮的表情");
     
     private final String chineseName;
     private final String englishName;
