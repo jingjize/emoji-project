@@ -34,7 +34,7 @@ RUN mkdir -p /app/output /app/logs && \
 USER spring:spring
 
 # 暴露端口
-EXPOSE 8080
+EXPOSE 8443
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \

@@ -15,7 +15,7 @@ public class MemeApplication {
         SpringApplication.run(MemeApplication.class, args);
         System.out.println("=================================");
         System.out.println("表情包生成服务已启动！");
-        System.out.println("访问地址: http://localhost:8080");
+        System.out.println("访问地址: http://localhost:8443");
         System.out.println("API 文档: POST /api/meme/generate");
         System.out.println("=================================");
     }
