@@ -23,13 +23,16 @@ Page({
     selectedGalleryImage: null,
     galleryCategories: [
       { code: '', name: '全部' },
+      { code: 'anime', name: '动漫' },
+      { code: 'cartoon', name: '卡通' },
+      { code: 'kawaii', name: '二次元' },
+      { code: 'cute', name: '可爱' },
       { code: 'emotion', name: '表情' },
       { code: 'animals', name: '动物' },
       { code: 'nature', name: '自然' },
       { code: 'people', name: '人物' },
       { code: 'food', name: '食物' },
-      { code: 'funny', name: '搞笑' },
-      { code: 'cute', name: '可爱' }
+      { code: 'funny', name: '搞笑' }
     ],
     // 文字样式相关
     textStyleExpanded: false,
@@ -582,7 +585,7 @@ Page({
       error: '',
       resultImageUrl: '',
       resultEmotion: '',
-      selectedTab: 'upload' // 切换回上传标签页，让用户设置情绪、文字、样式、滤镜
+      currentTab: 'upload' // 自动切换到上传图片标签页，让用户设置情绪、文字、样式、滤镜
     });
     
     wx.showToast({

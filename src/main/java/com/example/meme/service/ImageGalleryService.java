@@ -82,7 +82,8 @@ public class ImageGalleryService {
         
         try {
             // 直接使用原始关键词搜索（支持中文和英文），根据语言设置 lang 参数
-            List<GalleryImage> images = searchWithLang(searchQuery, lang, page, perPage);
+            // 默认使用 photo 类型
+            List<GalleryImage> images = searchWithLang(searchQuery, lang, page, perPage, "photo");
             
             if (images != null && !images.isEmpty()) {
                 return images;
@@ -99,17 +100,24 @@ public class ImageGalleryService {
     
     /**
      * 使用指定语言参数调用 Pixabay API
+     * 
+     * @param query 搜索关键词
+     * @param lang 语言代码
+     * @param page 页码
+     * @param perPage 每页数量
+     * @param imageType 图片类型：photo（照片）、illustration（插画）、vector（矢量图）、all（全部）
      */
-    private List<GalleryImage> searchWithLang(String query, String lang, Integer page, Integer perPage) {
+    private List<GalleryImage> searchWithLang(String query, String lang, Integer page, Integer perPage, String imageType) {
         try {
             // URL编码查询关键词
             String encodedQuery = java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8);
             
             // 构建请求URL，参数顺序：key, q, image_type, page, per_page, lang, safesearch
-            String url = String.format("%s/?key=%s&q=%s&image_type=photo&page=%d&per_page=%d&lang=%s&safesearch=true", 
+            String url = String.format("%s/?key=%s&q=%s&image_type=%s&page=%d&per_page=%d&lang=%s&safesearch=true", 
                     PIXABAY_API_BASE,
                     pixabayApiKey,
                     encodedQuery,
+                    imageType != null ? imageType : "photo",
                     page,
                     perPage,
                     lang);
@@ -131,6 +139,13 @@ public class ImageGalleryService {
             log.error("Pixabay API 调用失败: {}", e.getMessage(), e);
             return null;
         }
+    }
+    
+    /**
+     * 使用指定语言参数调用 Pixabay API（兼容旧方法，默认使用photo类型）
+     */
+    private List<GalleryImage> searchWithLang(String query, String lang, Integer page, Integer perPage) {
+        return searchWithLang(query, lang, page, perPage, "photo");
     }
     
     /**
@@ -171,21 +186,69 @@ public class ImageGalleryService {
      */
     public List<GalleryImage> getCategoryImages(String category, Integer page) {
         // 预设分类关键词映射（使用中文关键词，直接支持中文搜索）
+        // 对于动漫卡通类，使用更精准的关键词组合以获得平面风格图片
         java.util.Map<String, String> categoryMap = new java.util.HashMap<>();
+        // 动漫卡通类（迎合年轻人，使用更精准的关键词以获得平面风格）
+        categoryMap.put("anime", "anime illustration flat style"); // 使用英文关键词组合，更精准匹配平面动漫风格
+        categoryMap.put("cartoon", "cartoon illustration flat design"); // 平面卡通插画
+        categoryMap.put("kawaii", "kawaii anime cute illustration"); // 二次元可爱风格
+        categoryMap.put("cute", "cute illustration kawaii"); // 可爱插画
+        // 其他分类
+        categoryMap.put("emotion", "表情");
         categoryMap.put("animals", "动物");
         categoryMap.put("nature", "自然");
         categoryMap.put("people", "人物");
         categoryMap.put("food", "食物");
         categoryMap.put("travel", "旅行");
-        categoryMap.put("emotion", "表情");
         categoryMap.put("funny", "搞笑");
-        categoryMap.put("cute", "可爱");
         
-        // 获取中文关键词，如果分类代码不在映射中，直接使用原值
+        // 获取关键词，如果分类代码不在映射中，直接使用原值
         String query = categoryMap.getOrDefault(category, category);
         
-        // 调用 searchImages，它会自动检测中文并设置 lang=zh
-        return searchImages(query, page, 15);
+        // 对于动漫卡通类，使用英文关键词和 illustration 类型以获得平面风格图片
+        boolean isAnimeCategory = "anime".equals(category) || "cartoon".equals(category) 
+                || "kawaii".equals(category) || "cute".equals(category);
+        
+        if (isAnimeCategory) {
+            // 动漫卡通类：使用英文关键词 + illustration 类型，获得平面风格插画
+            try {
+                String encodedQuery = java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8);
+                String url = String.format("%s/?key=%s&q=%s&image_type=illustration&page=%d&per_page=%d&lang=en&safesearch=true", 
+                        PIXABAY_API_BASE,
+                        pixabayApiKey,
+                        encodedQuery,
+                        page,
+                        15,
+                        "en");
+                
+                String response = webClient.get()
+                        .uri(URI.create(url))
+                        .retrieve()
+                        .onStatus(status -> !status.is2xxSuccessful(), clientResponse -> {
+                            log.error("Pixabay API 返回错误状态码: {}", clientResponse.statusCode());
+                            return clientResponse.bodyToMono(String.class)
+                                    .doOnNext(body -> log.error("错误响应内容: {}", body))
+                                    .then(Mono.error(new RuntimeException("API 返回错误状态码: " + clientResponse.statusCode())));
+                        })
+                        .bodyToMono(String.class)
+                        .block();
+                
+                List<GalleryImage> images = parsePixabayResponse(response);
+                if (images != null && !images.isEmpty()) {
+                    return images;
+                }
+                
+                // 如果 illustration 类型没有结果，尝试 all 类型
+                log.info("illustration 类型无结果，尝试 all 类型");
+                return searchWithLang(query, "en", page, 15, "all");
+            } catch (Exception e) {
+                log.error("搜索动漫卡通类图片失败: {}", e.getMessage());
+                return getDefaultImages();
+            }
+        } else {
+            // 其他分类使用中文关键词和 photo 类型
+            return searchImages(query, page, 15);
+        }
     }
     
     /**
