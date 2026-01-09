@@ -23,6 +23,7 @@ Page({
     selectedGalleryImage: null,
     galleryCategories: [
       { code: '', name: '全部' },
+      { code: 'beauty', name: '靓女' },
       { code: 'anime', name: '动漫' },
       { code: 'cartoon', name: '卡通' },
       { code: 'kawaii', name: '二次元' },

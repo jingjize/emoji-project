@@ -1,5 +1,6 @@
 package com.example.meme.controller;
 
+import com.example.meme.annotation.LogRequest;
 import com.example.meme.model.EmotionType;
 import com.example.meme.model.FilterType;
 import com.example.meme.model.GalleryImage;
@@ -43,6 +44,7 @@ public class MemeController {
      * @return 生成结果，包含图片 URL
      */
     @PostMapping("/generate")
+    @LogRequest("生成表情包")
     public ResponseEntity<Map<String, Object>> generateEmotionImage(
             @RequestParam("image") MultipartFile image,
             @RequestParam(value = "emotion", defaultValue = "happy") String emotion,
@@ -84,7 +86,7 @@ public class MemeController {
             
         } catch (Exception e) {
             // 其他错误
-            e.printStackTrace();
+            log.error("生成表情包失败: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("message", "生成表情图片失败: " + e.getMessage());
             response.put("imageUrl", null);
@@ -97,6 +99,7 @@ public class MemeController {
      * 获取所有支持的情绪类型
      */
     @GetMapping("/emotions")
+    @LogRequest("获取情绪类型")
     public ResponseEntity<Map<String, Object>> getEmotions() {
         Map<String, Object> response = new HashMap<>();
         Map<String, String> emotions = new HashMap<>();
@@ -115,6 +118,7 @@ public class MemeController {
      * 获取所有支持的滤镜类型
      */
     @GetMapping("/filters")
+    @LogRequest("获取滤镜类型")
     public ResponseEntity<Map<String, Object>> getFilters() {
         Map<String, Object> response = new HashMap<>();
         Map<String, Map<String, String>> filters = new HashMap<>();
@@ -137,9 +141,16 @@ public class MemeController {
      */
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
+        log.info("=== 健康检查请求 ===");
+        log.info("请求接口: GET /api/meme/health");
+        
         Map<String, String> response = new HashMap<>();
         response.put("status", "ok");
         response.put("service", "meme-generator");
+        
+        log.info("=== 健康检查响应 ===");
+        log.info("响应状态: 200 OK, status=ok");
+        
         return ResponseEntity.ok(response);
     }
     
@@ -152,6 +163,7 @@ public class MemeController {
      * @return 图片列表
      */
     @GetMapping("/gallery/search")
+    @LogRequest("搜索图库图片")
     public ResponseEntity<Map<String, Object>> searchGalleryImages(
             @RequestParam("query") String query,
             @RequestParam(value = "page", defaultValue = "1") Integer page,
@@ -171,7 +183,7 @@ public class MemeController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            log.error("搜索图库图片失败", e);
+            log.error("搜索图库图片失败: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("message", "搜索失败: " + e.getMessage());
             response.put("images", new java.util.ArrayList<>());
@@ -188,6 +200,7 @@ public class MemeController {
      * @return 图片列表
      */
     @GetMapping("/gallery/curated")
+    @LogRequest("获取热门图片")
     public ResponseEntity<Map<String, Object>> getCuratedImages(
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "perPage", defaultValue = "15") Integer perPage) {
@@ -206,7 +219,7 @@ public class MemeController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            log.error("获取热门图片失败", e);
+            log.error("获取热门图片失败: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("message", "获取失败: " + e.getMessage());
             response.put("images", new java.util.ArrayList<>());
@@ -223,6 +236,7 @@ public class MemeController {
      * @return 图片列表
      */
     @GetMapping("/gallery/category")
+    @LogRequest("获取分类图片")
     public ResponseEntity<Map<String, Object>> getCategoryImages(
             @RequestParam("category") String category,
             @RequestParam(value = "page", defaultValue = "1") Integer page) {
@@ -241,7 +255,7 @@ public class MemeController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            log.error("获取分类图片失败", e);
+            log.error("获取分类图片失败: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("message", "获取失败: " + e.getMessage());
             response.put("images", new java.util.ArrayList<>());
@@ -262,6 +276,7 @@ public class MemeController {
      * @return 生成结果
      */
     @PostMapping("/generate-from-gallery")
+    @LogRequest("从图库生成表情包")
     public ResponseEntity<Map<String, Object>> generateFromGallery(
             @RequestParam("imageUrl") String imageUrl,
             @RequestParam(value = "emotion", defaultValue = "happy") String emotion,
@@ -306,7 +321,7 @@ public class MemeController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            log.error("从图库生成表情包失败", e);
+            log.error("从图库生成表情包失败: {}", e.getMessage(), e);
             response.put("success", false);
             response.put("message", "生成失败: " + e.getMessage());
             response.put("imageUrl", null);

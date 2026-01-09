@@ -80,12 +80,21 @@ public class ImageGalleryService {
             lang = "zh"; // 使用中文语言参数，支持中文关键词搜索
         }
         
+        // 添加随机性：如果是第一页，随机选择1-10页中的某一页，增加结果的随机性
+        int actualPage = page;
+        if (page == 1) {
+            // 随机选择1-10页中的某一页，使每次搜索返回不同的图片
+            actualPage = (int) (Math.random() * 10) + 1;
+        }
+        
         try {
             // 直接使用原始关键词搜索（支持中文和英文），根据语言设置 lang 参数
             // 默认使用 photo 类型
-            List<GalleryImage> images = searchWithLang(searchQuery, lang, page, perPage, "photo");
+            List<GalleryImage> images = searchWithLang(searchQuery, lang, actualPage, perPage, "photo");
             
             if (images != null && !images.isEmpty()) {
+                // 对结果进行随机打乱，进一步增加随机性
+                java.util.Collections.shuffle(images);
                 return images;
             }
             
@@ -172,8 +181,62 @@ public class ImageGalleryService {
      * @return 图片列表
      */
     public List<GalleryImage> getCuratedImages(Integer page, Integer perPage) {
-        // 使用中文关键词搜索热门图片，设置 lang=zh
-        return searchImages("热门", page, perPage);
+        // 使用通用的热门关键词，确保有结果
+        // 如果随机页面没有结果，尝试使用第一页
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (perPage == null || perPage < 1 || perPage > 20) {
+            perPage = 15;
+        }
+        
+        // 检查 API Key
+        if (pixabayApiKey == null || pixabayApiKey.trim().isEmpty()) {
+            log.error("Pixabay API Key 未配置");
+            return getDefaultImages();
+        }
+        
+        // 添加随机性：如果是第一页，随机选择1-5页中的某一页（缩小范围，确保有结果）
+        int actualPage = page;
+        if (page == 1) {
+            actualPage = (int) (Math.random() * 5) + 1; // 缩小到1-5页
+        }
+        
+        try {
+            // 尝试使用 "popular" 关键词（英文，更通用）
+            List<GalleryImage> images = searchWithLang("popular", "en", actualPage, perPage, "photo");
+            
+            if (images != null && !images.isEmpty()) {
+                // 对结果进行随机打乱
+                java.util.Collections.shuffle(images);
+                return images;
+            }
+            
+            // 如果随机页面没有结果，回退到第一页
+            if (actualPage != 1) {
+                log.info("随机页面 {} 无结果，回退到第一页", actualPage);
+                images = searchWithLang("popular", "en", 1, perPage, "photo");
+                if (images != null && !images.isEmpty()) {
+                    java.util.Collections.shuffle(images);
+                    return images;
+                }
+            }
+            
+            // 如果还是没结果，尝试使用 "nature" 作为备选
+            log.warn("popular 关键词无结果，尝试使用 nature");
+            images = searchWithLang("nature", "en", 1, perPage, "photo");
+            if (images != null && !images.isEmpty()) {
+                java.util.Collections.shuffle(images);
+                return images;
+            }
+            
+            log.warn("Pixabay API 未搜索到精选图片");
+            return getDefaultImages();
+            
+        } catch (Exception e) {
+            log.error("Pixabay API 获取精选图片失败: {}", e.getMessage(), e);
+            return getDefaultImages();
+        }
     }
     
     /**
@@ -188,6 +251,8 @@ public class ImageGalleryService {
         // 预设分类关键词映射（使用中文关键词，直接支持中文搜索）
         // 对于动漫卡通类，使用更精准的关键词组合以获得平面风格图片
         java.util.Map<String, String> categoryMap = new java.util.HashMap<>();
+        // 靓女分类（放在最前面）
+        categoryMap.put("beauty", "美女");
         // 动漫卡通类（迎合年轻人，使用更精准的关键词以获得平面风格）
         categoryMap.put("anime", "anime illustration flat style"); // 使用英文关键词组合，更精准匹配平面动漫风格
         categoryMap.put("cartoon", "cartoon illustration flat design"); // 平面卡通插画
@@ -209,6 +274,12 @@ public class ImageGalleryService {
         boolean isAnimeCategory = "anime".equals(category) || "cartoon".equals(category) 
                 || "kawaii".equals(category) || "cute".equals(category);
         
+        // 添加随机性：如果是第一页，随机选择1-10页中的某一页
+        int actualPage = page;
+        if (page == 1) {
+            actualPage = (int) (Math.random() * 10) + 1;
+        }
+        
         if (isAnimeCategory) {
             // 动漫卡通类：使用英文关键词 + illustration 类型，获得平面风格插画
             try {
@@ -217,7 +288,7 @@ public class ImageGalleryService {
                         PIXABAY_API_BASE,
                         pixabayApiKey,
                         encodedQuery,
-                        page,
+                        actualPage,
                         15,
                         "en");
                 
@@ -235,19 +306,25 @@ public class ImageGalleryService {
                 
                 List<GalleryImage> images = parsePixabayResponse(response);
                 if (images != null && !images.isEmpty()) {
+                    // 对结果进行随机打乱
+                    java.util.Collections.shuffle(images);
                     return images;
                 }
                 
                 // 如果 illustration 类型没有结果，尝试 all 类型
                 log.info("illustration 类型无结果，尝试 all 类型");
-                return searchWithLang(query, "en", page, 15, "all");
+                List<GalleryImage> allImages = searchWithLang(query, "en", actualPage, 15, "all");
+                if (allImages != null && !allImages.isEmpty()) {
+                    java.util.Collections.shuffle(allImages);
+                }
+                return allImages;
             } catch (Exception e) {
                 log.error("搜索动漫卡通类图片失败: {}", e.getMessage());
                 return getDefaultImages();
             }
         } else {
-            // 其他分类使用中文关键词和 photo 类型
-            return searchImages(query, page, 15);
+            // 其他分类使用中文关键词和 photo 类型（searchImages 方法内部已处理随机性）
+            return searchImages(query, actualPage, 15);
         }
     }
     
