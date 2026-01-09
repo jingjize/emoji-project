@@ -3,6 +3,7 @@ package com.example.meme.service;
 import com.example.meme.client.AiClient;
 import com.example.meme.model.EmotionType;
 import com.example.meme.model.ImageGenerateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Base64;
  * 图像生成服务
  * 负责调用 AI 生成情绪表情图片并保存
  */
+@Slf4j
 @Service
 public class ImageGenerateService {
     
@@ -50,7 +52,7 @@ public class ImageGenerateService {
         
         // 如果是 HTTP/HTTPS URL（如 OSS URL），直接返回，浏览器可以直接显示
         if (imageData.startsWith("http://") || imageData.startsWith("https://")) {
-            System.out.println("返回 OSS URL: " + imageData);
+            log.info("返回 OSS URL: {}", imageData);
             return imageData;  // 直接返回 OSS URL，前端可以直接显示
         }
         

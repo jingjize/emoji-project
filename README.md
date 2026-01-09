@@ -6,6 +6,8 @@
 
 **核心功能**：
 - 📸 图片上传
+- 🖼️ **在线图库**：从免费图库（Pixabay）选择图片，无需上传即可生成表情包
+- 🌏 **中文搜索支持**：原生支持中文关键词搜索，专为中国用户优化
 - 🤖 AI 自动生成情绪表情图片（高兴、伤心、生气等）
 - ✍️ **自定义文字**：可选择在生成的图片上添加自定义文字
 - 🎨 **文字样式自定义**：支持自定义颜色、字体大小、位置、描边等
@@ -19,7 +21,8 @@
 - **Spring Boot 3.2.0**
 - **Maven**
 - **Java Graphics2D**（图片处理）
-- **OpenAI API**（多模态模型，可替换）
+- **阿里云百炼 DashScope**（AI 图片生成）
+- **Pixabay API**（免费图片库，支持中文搜索）
 
 ## 快速开始
 
@@ -29,17 +32,51 @@
 - Maven 3.6+
 - OpenAI API Key（可选，如果 API 不可用会使用模拟数据）
 
-### 2. 配置 API Key
+### 2. 配置 API Key 和模型
 
-编辑 `src/main/resources/application.yml`，将 `YOUR_API_KEY` 替换为你的 OpenAI API Key：
+编辑 `src/main/resources/application.yml`，配置你的 DashScope API Key：
 
 ```yaml
-ai:
-  openai:
-    api-key: YOUR_API_KEY  # 替换为你的 API Key
+spring:
+  ai:
+    dashscope:
+      api-key: YOUR_API_KEY  # 替换为你的 DashScope API Key
+      image:
+        options:
+          # 支持多个模型，按优先级顺序尝试，当某个模型额度不足或失败时自动切换到下一个
+          models: qwen-image-plus,qwen-image-max,qwen-image-max-2025-12-30
+          size: 1328*1328
+
+# 图库配置（仅使用Pixabay，支持中文搜索）
+gallery:
+  pixabay:
+    # Pixabay API Key（必需，免费注册即可获得，支持中文搜索）
+    # 获取API Key: https://pixabay.com/api/docs/
+    # 注册地址: https://pixabay.com/accounts/register/
+    api-key: YOUR_PIXABAY_API_KEY
 ```
 
-**注意**：如果没有 API Key 或 API 调用失败，系统会自动使用模拟数据，不影响功能测试。
+**多模型支持**：
+- 系统支持配置多个图片生成模型，按优先级顺序尝试
+- 当某个模型额度不足或调用失败时，会自动切换到下一个模型
+
+#### 2.2 配置图库 API Key（必需）
+
+**Pixabay API（支持中文搜索，专为中国用户优化）**：
+1. 访问 https://pixabay.com/accounts/register/ 注册账号（免费）
+2. 访问 https://pixabay.com/api/docs/ 获取 API Key
+3. 在 `application.yml` 中配置：
+```yaml
+gallery:
+  pixabay:
+    api-key: YOUR_PIXABAY_API_KEY  # 替换为你的 Pixabay API Key
+```
+
+**Pixabay API 优势**：
+- ✅ 原生支持中文关键词搜索
+- ✅ 免费注册，每小时 100 次请求（免费版）
+- ✅ 高质量免费图片，支持商业使用
+- ✅ 专为中国用户优化
 
 ### 3. 启动项目
 
@@ -344,17 +381,22 @@ emoji-project/
 - **使用方式**：在生成前选择滤镜，滤镜会应用到 AI 生成的图片上
 
 ### AI 图片生成
-- 使用阿里云 DashScope 的 `qwen-image` 模型
+- 使用阿里云 DashScope 的图片生成模型
+- **多模型自动切换**：支持配置多个模型（`qwen-image-plus`、`qwen-image-max`、`qwen-image-max-2025-12-30`）
+- **智能容错**：当某个模型额度不足或调用失败时，自动切换到下一个模型
 - 基于上传的图片和选择的情绪生成对应的表情图片
 - 支持返回 OSS URL 或本地保存
+- 所有模型都失败时会使用模拟数据，确保服务可用性
 
 ## 常见问题
 
 ### 1. 字体显示问题
 如果系统没有黑体（SimHei），Java 会自动使用默认字体。可以在 `ImageComposeService.java` 中修改字体设置。
 
-### 2. API Key 配置
-如果没有 OpenAI API Key，系统会自动使用模拟数据，不影响功能测试。
+### 2. API Key 和模型配置
+- 配置 DashScope API Key 后即可使用 AI 图片生成功能
+- 支持配置多个模型，系统会自动切换，提高可用性
+- 如果没有 API Key 或所有模型都失败，系统会自动使用模拟数据，不影响功能测试
 
 ### 3. 端口冲突
 如果 8080 端口被占用，可以在 `application.yml` 中修改 `server.port`。
@@ -370,12 +412,14 @@ emoji-project/
 ## 后续扩展方向
 
 - ✅ 自定义文字功能（已完成）
+- ✅ 多模型自动切换（已完成）
 - 自定义文字样式（颜色、大小、位置、字体）
 - 批量处理多张图片
 - 集成其他 AI 模型
 - 云存储集成
 - 文字位置自定义（顶部、中部、底部）
 - 多行文字布局优化
+- 模型使用统计和监控
 
 ## 许可证
 

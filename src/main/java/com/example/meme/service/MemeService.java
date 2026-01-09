@@ -5,6 +5,7 @@ import com.example.meme.model.FilterType;
 import com.example.meme.model.ImageUnderstandResult;
 import com.example.meme.model.TextStyle;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,7 @@ import javax.imageio.ImageIO;
  * 表情包生成服务
  * 核心业务逻辑：协调 AI 服务和图片生成服务
  */
+@Slf4j
 @Service
 public class MemeService {
     
@@ -61,7 +63,7 @@ public class MemeService {
         // 3. 调用 AI 生成情绪表情图片
         String imageUrl = imageGenerateService.generateEmotionImage(imageBytes, emotionType);
         
-        System.out.println("AI 生成的" + emotionType.getChineseName() + "表情图片: " + imageUrl);
+        log.info("AI 生成的{}表情图片: {}", emotionType.getChineseName(), imageUrl);
         
         // 4. 下载生成的图片（如果是 OSS URL）
         byte[] generatedImageBytes = downloadImage(imageUrl);
@@ -75,7 +77,7 @@ public class MemeService {
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             ImageIO.write(filteredImage, "png", baos);
             generatedImageBytes = baos.toByteArray();
-            System.out.println("已应用滤镜: " + filterType.getName());
+            log.info("已应用滤镜: {}", filterType.getName());
         }
         
         // 6. 如果提供了自定义文字，将文字绘制到生成的图片上
@@ -85,7 +87,7 @@ public class MemeService {
             
             // 将文字绘制到图片上
             imageUrl = imageComposeService.composeImage(generatedImageBytes, customText.trim(), textStyle);
-            System.out.println("已添加自定义文字: " + customText);
+            log.info("已添加自定义文字: {}", customText);
         }
         
         return imageUrl;
@@ -109,7 +111,7 @@ public class MemeService {
         try {
             return objectMapper.readValue(textStyleJson, TextStyle.class);
         } catch (Exception e) {
-            System.out.println("解析文字样式失败，使用默认样式: " + e.getMessage());
+            log.warn("解析文字样式失败，使用默认样式: {}", e.getMessage());
             return new TextStyle();
         }
     }
@@ -164,7 +166,7 @@ public class MemeService {
         ImageUnderstandResult result = aiService.generateMemeText(imageBytes);
         String memeText = result.getText();
         
-        System.out.println("AI 生成的文案: " + memeText);
+        log.info("AI 生成的文案: {}", memeText);
         
         // 4. 将文案绘制到图片上
         String imageUrl = imageComposeService.composeImage(imageBytes, memeText);

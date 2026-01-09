@@ -2,11 +2,31 @@
 <view class="container">
   <view class="header">
     <text class="title">🎭 AI 情绪表情生成器</text>
-    <text class="subtitle">上传图片，AI 自动生成不同情绪的表情图片</text>
+    <text class="subtitle">上传图片或从图库选择，AI 自动生成不同情绪的表情图片</text>
   </view>
 
-  <!-- 上传区域 -->
-  <view class="upload-area" bindtap="chooseImage">
+  <!-- 标签页切换 -->
+  <view class="tab-buttons">
+    <view 
+      class="tab-btn {{currentTab === 'upload' ? 'active' : ''}}" 
+      bindtap="switchTab" 
+      data-tab="upload"
+    >
+      <text>📤 上传图片</text>
+    </view>
+    <view 
+      class="tab-btn {{currentTab === 'gallery' ? 'active' : ''}}" 
+      bindtap="switchTab" 
+      data-tab="gallery"
+    >
+      <text>🖼️ 图库选择</text>
+    </view>
+  </view>
+
+  <!-- 上传图片标签页 -->
+  <view class="tab-content" wx:if="{{currentTab === 'upload'}}">
+    <!-- 上传区域 -->
+    <view class="upload-area" bindtap="chooseImage">
     <image wx:if="{{previewImage}}" src="{{previewImage}}" class="preview-image" mode="aspectFit"></image>
     <view wx:else class="upload-placeholder">
       <text class="upload-icon">📸</text>
@@ -162,6 +182,69 @@
     <image src="{{resultImageUrl}}" class="result-image" mode="aspectFit" bindtap="previewImage"></image>
     <button class="action-btn" bindtap="saveImage">保存到相册</button>
     <button class="action-btn secondary" bindtap="reset">重新生成</button>
+  </view>
+  </view>
+
+  <!-- 图库选择标签页 -->
+  <view class="tab-content" wx:if="{{currentTab === 'gallery'}}">
+    <!-- 搜索区域 -->
+    <view class="gallery-search">
+      <view class="search-input-wrapper">
+        <input 
+          class="search-input" 
+          type="text" 
+          placeholder="搜索图片（如：猫、风景、人物）"
+          value="{{gallerySearchQuery}}"
+          bindinput="onGallerySearchInput"
+          confirm-type="search"
+          bindconfirm="searchGallery"
+        />
+        <button class="search-btn" bindtap="searchGallery">搜索</button>
+      </view>
+      <scroll-view class="category-scroll" scroll-x="true">
+        <view class="category-buttons">
+          <view 
+            wx:for="{{galleryCategories}}" 
+            wx:key="code"
+            class="category-btn {{galleryCurrentCategory === item.code ? 'active' : ''}}"
+            bindtap="selectGalleryCategory"
+            data-category="{{item.code}}"
+          >
+            <text>{{item.name}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- 图片网格 -->
+    <scroll-view 
+      class="gallery-scroll" 
+      scroll-y="true" 
+      lower-threshold="100"
+      bindscrolltolower="loadMoreGallery"
+    >
+      <view class="gallery-grid">
+        <view 
+          wx:for="{{galleryImages}}" 
+          wx:key="id"
+          class="gallery-item {{selectedGalleryImage === item.originalUrl ? 'selected' : ''}}"
+          bindtap="selectGalleryImage"
+          data-url="{{item.originalUrl}}"
+        >
+          <image 
+            src="{{item.smallUrl || item.mediumUrl || item.originalUrl}}" 
+            mode="aspectFill"
+            lazy-load
+          />
+        </view>
+      </view>
+      <view wx:if="{{galleryLoading}}" class="gallery-loading">
+        <text>加载中...</text>
+      </view>
+      <view wx:if="{{galleryImages.length === 0 && !galleryLoading}}" class="gallery-empty">
+        <text>暂无图片，请尝试搜索或选择分类</text>
+      </view>
+    </scroll-view>
   </view>
 </view>
 

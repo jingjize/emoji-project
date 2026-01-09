@@ -1,5 +1,6 @@
 package com.example.meme;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,16 +9,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 
  * @author AI Assistant
  */
+@Slf4j
 @SpringBootApplication
 public class MemeApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(MemeApplication.class, args);
-        System.out.println("=================================");
-        System.out.println("表情包生成服务已启动！");
-        System.out.println("访问地址: http://localhost:8443");
-        System.out.println("API 文档: POST /api/meme/generate");
-        System.out.println("=================================");
+        log.info("=================================");
+        log.info("表情包生成服务已启动！");
+        log.info("访问地址: http://localhost:8443");
+        log.info("API 文档: POST /api/meme/generate");
+        log.info("=================================");
     }
 }
 

@@ -12,6 +12,25 @@ Page({
     error: '',
     resultImageUrl: '',
     resultEmotion: '',
+    // 标签页
+    currentTab: 'upload',
+    // 图库相关
+    gallerySearchQuery: '',
+    galleryCurrentCategory: '',
+    galleryImages: [],
+    galleryLoading: false,
+    galleryPage: 1,
+    selectedGalleryImage: null,
+    galleryCategories: [
+      { code: '', name: '全部' },
+      { code: 'emotion', name: '表情' },
+      { code: 'animals', name: '动物' },
+      { code: 'nature', name: '自然' },
+      { code: 'people', name: '人物' },
+      { code: 'food', name: '食物' },
+      { code: 'funny', name: '搞笑' },
+      { code: 'cute', name: '可爱' }
+    ],
     // 文字样式相关
     textStyleExpanded: false,
     textPositionIndex: 1, // 默认中间
@@ -224,11 +243,11 @@ Page({
     });
   },
 
-  // 生成表情包
+  // 生成表情包（统一处理上传图片和图库图片）
   generateMeme() {
     if (!this.data.previewImage) {
       wx.showToast({
-        title: '请先选择图片',
+        title: '请先选择图片或从图库选择',
         icon: 'none'
       });
       return;
@@ -242,9 +261,8 @@ Page({
     });
 
     const that = this;
-    const apiUrl = app.globalData.apiBaseUrl + '/generate';
-
-    // 上传图片
+    
+    // 构建请求参数（情绪、文字、样式、滤镜）
     const formData = {
       'emotion': this.data.selectedEmotion
     };
@@ -273,47 +291,78 @@ Page({
       formData['filter'] = this.data.selectedFilter;
     }
     
-    wx.uploadFile({
-      url: apiUrl,
-      filePath: this.data.previewImage,
-      name: 'image',
-      formData: formData,
-      success(res) {
-        try {
-          const data = JSON.parse(res.data);
-          
-          if (data.success) {
-            that.setData({
-              resultImageUrl: data.imageUrl,
-              resultEmotion: data.emotion || '表情',
-              loading: false
-            });
-            
-            wx.showToast({
-              title: '生成成功！',
-              icon: 'success'
-            });
-          } else {
-            that.setData({
-              error: data.message || '生成失败，请重试',
-              loading: false
-            });
-          }
-        } catch (e) {
+    // 判断是图库图片还是上传图片
+    if (this.data.selectedGalleryImage && this.data.previewImage === this.data.selectedGalleryImage) {
+      // 图库图片：使用 generate-from-gallery 接口
+      formData['imageUrl'] = this.data.previewImage;
+      
+      wx.request({
+        url: app.globalData.apiBaseUrl + '/generate-from-gallery',
+        method: 'POST',
+        data: formData,
+        header: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        success(res) {
+          that.handleGenerateResponse(res);
+        },
+        fail(err) {
+          console.error('生成失败:', err);
           that.setData({
-            error: '解析响应失败: ' + e.message,
+            error: '网络错误: ' + err.errMsg,
             loading: false
           });
         }
-      },
-      fail(err) {
-        console.error('上传失败:', err);
-        that.setData({
-          error: '网络错误: ' + err.errMsg,
+      });
+    } else {
+      // 上传图片：使用 generate 接口
+      wx.uploadFile({
+        url: app.globalData.apiBaseUrl + '/generate',
+        filePath: this.data.previewImage,
+        name: 'image',
+        formData: formData,
+        success(res) {
+          that.handleGenerateResponse(res);
+        },
+        fail(err) {
+          console.error('上传失败:', err);
+          that.setData({
+            error: '网络错误: ' + err.errMsg,
+            loading: false
+          });
+        }
+      });
+    }
+  },
+  
+  // 统一处理生成响应
+  handleGenerateResponse(res) {
+    try {
+      const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+      
+      if (data.success) {
+        this.setData({
+          resultImageUrl: data.imageUrl,
+          resultEmotion: data.emotion || '表情',
+          loading: false
+        });
+        
+        wx.showToast({
+          title: '生成成功！',
+          icon: 'success'
+        });
+      } else {
+        this.setData({
+          error: data.message || '生成失败，请重试',
           loading: false
         });
       }
-    });
+    } catch (e) {
+      this.setData({
+        error: '解析响应失败: ' + e.message,
+        loading: false
+      });
+    }
   },
 
   // 预览图片
@@ -405,11 +454,143 @@ Page({
     }
   },
 
+  // 切换标签页
+  switchTab(e) {
+    const tab = e.currentTarget.dataset.tab;
+    this.setData({
+      currentTab: tab
+    });
+    
+    // 如果切换到图库标签页且还没有加载图片，则加载默认图片
+    if (tab === 'gallery' && this.data.galleryImages.length === 0) {
+      this.loadGalleryImages('', 1, '');
+    }
+  },
+
+  // 图库搜索输入
+  onGallerySearchInput(e) {
+    this.setData({
+      gallerySearchQuery: e.detail.value
+    });
+  },
+
+  // 搜索图库
+  searchGallery() {
+    const query = this.data.gallerySearchQuery.trim();
+    this.setData({
+      galleryCurrentCategory: '',
+      galleryPage: 1,
+      galleryImages: []
+    });
+    this.loadGalleryImages(query, 1, '');
+  },
+
+  // 选择图库分类
+  selectGalleryCategory(e) {
+    const category = e.currentTarget.dataset.category;
+    this.setData({
+      galleryCurrentCategory: category,
+      gallerySearchQuery: '',
+      galleryPage: 1,
+      galleryImages: []
+    });
+    this.loadGalleryImages('', 1, category);
+  },
+
+  // 加载图库图片
+  loadGalleryImages(query, page, category) {
+    this.setData({
+      galleryLoading: true
+    });
+
+    const app = getApp();
+    let url;
+    if (category) {
+      url = `${app.globalData.apiBaseUrl}/gallery/category?category=${encodeURIComponent(category)}&page=${page}`;
+    } else if (query) {
+      url = `${app.globalData.apiBaseUrl}/gallery/search?query=${encodeURIComponent(query)}&page=${page}&perPage=15`;
+    } else {
+      url = `${app.globalData.apiBaseUrl}/gallery/curated?page=${page}&perPage=15`;
+    }
+
+    wx.request({
+      url: url,
+      method: 'GET',
+      success: (res) => {
+        if (res.statusCode === 200 && res.data.success && res.data.images) {
+          const newImages = page === 1 ? res.data.images : this.data.galleryImages.concat(res.data.images);
+          this.setData({
+            galleryImages: newImages,
+            galleryPage: page,
+            galleryLoading: false
+          });
+        } else {
+          this.setData({
+            galleryLoading: false
+          });
+          if (page === 1) {
+            wx.showToast({
+              title: '暂无图片',
+              icon: 'none'
+            });
+          }
+        }
+      },
+      fail: (err) => {
+        console.error('加载图库失败:', err);
+        this.setData({
+          galleryLoading: false
+        });
+        wx.showToast({
+          title: '加载失败',
+          icon: 'none'
+        });
+      }
+    });
+  },
+
+  // 加载更多图库图片
+  loadMoreGallery() {
+    if (this.data.galleryLoading) return;
+    
+    const nextPage = this.data.galleryPage + 1;
+    if (this.data.galleryCurrentCategory) {
+      this.loadGalleryImages('', nextPage, this.data.galleryCurrentCategory);
+    } else if (this.data.gallerySearchQuery) {
+      this.loadGalleryImages(this.data.gallerySearchQuery, nextPage, '');
+    } else {
+      this.loadGalleryImages('', nextPage, '');
+    }
+  },
+
+  // 选择图库图片
+  selectGalleryImage(e) {
+    const imageUrl = e.currentTarget.dataset.imageurl;
+    this.setData({
+      previewImage: imageUrl,
+      selectedGalleryImage: imageUrl, // 标记这是图库图片
+      fileInfo: `图库图片 | URL: ${imageUrl.substring(0, 30)}...`,
+      canGenerate: true,
+      error: '',
+      resultImageUrl: '',
+      resultEmotion: '',
+      selectedTab: 'upload' // 切换回上传标签页，让用户设置情绪、文字、样式、滤镜
+    });
+    
+    wx.showToast({
+      title: '图片已选择，请设置参数后生成',
+      icon: 'success',
+      duration: 2000
+    });
+  },
+
+
   // 重置
   reset() {
     this.setData({
       previewImage: '',
       fileInfo: '',
+      selectedGalleryImage: '', // 清除图库选择
       selectedEmotion: 'happy',
       customText: '',
       canGenerate: false,

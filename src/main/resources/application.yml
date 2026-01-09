@@ -23,11 +23,22 @@ spring:
           temperature: 0.7
       image:
         options:
-          model: qwen-image
-          size: 1328*1328  # qwen-image 支持的尺寸：1664*928, 1472*1140, 1328*1328, 1140*1472, 928*1664
+          # 支持多个模型，按优先级顺序尝试，当某个模型额度不足或失败时自动切换到下一个
+          models: qwen-image,qwen-image-plus,qwen-image-max,qwen-image-max-2025-12-30
+          # 默认模型（兼容旧配置）
+          model: qwen-image-plus
+          size: 1328*1328  # qwen-image 系列支持的尺寸：1664*928, 1472*1140, 1328*1328, 1140*1472, 928*1664
 
 # 文件存储配置
 file:
   upload-dir: output
   base-url: http://localhost:8080
+
+# 图库配置（仅使用Pixabay，支持中文搜索）
+gallery:
+  pixabay:
+    # Pixabay API Key（必需，免费注册即可获得，支持中文搜索）
+    # 获取API Key: https://pixabay.com/api/docs/
+    # 注册地址: https://pixabay.com/accounts/register/
+    api-key: 54119797-267df9d75a659404f092981ef
 

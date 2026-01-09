@@ -398,14 +398,188 @@
             border-radius: 4px;
             font-size: 12px;
         }
+
+        /* 图库相关样式 */
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .gallery-search {
+            margin-bottom: 20px;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .category-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .category-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .category-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .category-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+        }
+
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .gallery-item.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .gallery-loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .gallery-empty {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .load-more-btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #f0f0f0;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .load-more-btn:hover {
+            background: #e0e0e0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎭 AI 情绪表情生成器</h1>
-        <p class="subtitle">上传图片，AI 自动生成不同情绪的表情图片</p>
+        <p class="subtitle">上传图片或从图库选择，AI 自动生成不同情绪的表情图片</p>
 
-        <div class="upload-area" id="uploadArea">
+        <!-- 标签页切换 -->
+        <div class="tab-buttons">
+            <button class="tab-btn active" data-tab="upload">📤 上传图片</button>
+            <button class="tab-btn" data-tab="gallery">🖼️ 图库选择</button>
+        </div>
+
+        <!-- 上传图片标签页 -->
+        <div class="tab-content active" id="uploadTab">
+            <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📸</div>
             <div class="upload-text">点击或拖拽图片到这里</div>
             <div class="upload-hint">支持 JPG、PNG 格式，最大 10MB</div>
@@ -507,6 +681,31 @@
             
             <button class="btn" id="generateBtn">生成情绪表情</button>
         </div>
+        </div>
+
+        <!-- 图库选择标签页 -->
+        <div class="tab-content" id="galleryTab">
+            <div class="gallery-search">
+                <div class="search-input-wrapper">
+                    <input type="text" id="gallerySearchInput" class="search-input" placeholder="搜索图片（如：猫、风景、人物）">
+                    <button class="search-btn" id="gallerySearchBtn">搜索</button>
+                </div>
+                <div class="category-buttons">
+                    <button class="category-btn active" data-category="">全部</button>
+                    <button class="category-btn" data-category="emotion">表情</button>
+                    <button class="category-btn" data-category="animals">动物</button>
+                    <button class="category-btn" data-category="nature">自然</button>
+                    <button class="category-btn" data-category="people">人物</button>
+                    <button class="category-btn" data-category="food">食物</button>
+                    <button class="category-btn" data-category="funny">搞笑</button>
+                    <button class="category-btn" data-category="cute">可爱</button>
+                </div>
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
+                <div class="gallery-loading">加载中...</div>
+            </div>
+            <button class="load-more-btn" id="loadMoreBtn" style="display: none;">加载更多</button>
+        </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
@@ -540,6 +739,168 @@
         let resultImageUrl = null;
         let selectedEmotion = 'happy';
         let selectedFilter = 'none';
+
+        // 图库相关变量
+        const galleryGrid = document.getElementById('galleryGrid');
+        const gallerySearchInput = document.getElementById('gallerySearchInput');
+        const gallerySearchBtn = document.getElementById('gallerySearchBtn');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        let currentGalleryPage = 1;
+        let currentGalleryQuery = '';
+        let currentGalleryCategory = '';
+        let selectedGalleryImage = null;
+        let galleryImages = [];
+
+        // 标签页切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tab = btn.dataset.tab;
+                
+                // 更新按钮状态
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // 更新内容区域
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tab + 'Tab').classList.add('active');
+                
+                // 如果是图库标签页，加载默认图片
+                if (tab === 'gallery' && galleryImages.length === 0) {
+                    loadGalleryImages('', 1, '');
+                }
+            });
+        });
+
+        // 图库搜索
+        gallerySearchBtn.addEventListener('click', () => {
+            const query = gallerySearchInput.value.trim();
+            currentGalleryQuery = query;
+            currentGalleryCategory = '';
+            currentGalleryPage = 1;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('.category-btn[data-category=""]').classList.add('active');
+            loadGalleryImages(query, 1, '');
+        });
+
+        gallerySearchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                gallerySearchBtn.click();
+            }
+        });
+
+        // 分类选择
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const category = btn.dataset.category;
+                currentGalleryCategory = category;
+                currentGalleryQuery = '';
+                currentGalleryPage = 1;
+                gallerySearchInput.value = '';
+                
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                if (category) {
+                    loadGalleryImages('', 1, category);
+                } else {
+                    loadGalleryImages('', 1, '');
+                }
+            });
+        });
+
+        // 加载图库图片
+        async function loadGalleryImages(query, page, category) {
+            galleryGrid.innerHTML = '<div class="gallery-loading">加载中...</div>';
+            
+            try {
+                let url;
+                if (category) {
+                    url = `/api/meme/gallery/category?category=${encodeURIComponent(category)}&page=${page}`;
+                } else if (query) {
+                    url = `/api/meme/gallery/search?query=${encodeURIComponent(query)}&page=${page}&perPage=15`;
+                } else {
+                    url = `/api/meme/gallery/curated?page=${page}&perPage=15`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success && data.images && data.images.length > 0) {
+                    if (page === 1) {
+                        galleryImages = data.images;
+                    } else {
+                        galleryImages = galleryImages.concat(data.images);
+                    }
+                    renderGallery();
+                    loadMoreBtn.style.display = galleryImages.length >= 15 ? 'block' : 'none';
+                } else {
+                    galleryGrid.innerHTML = '<div class="gallery-empty">暂无图片，请尝试其他搜索词或分类</div>';
+                    loadMoreBtn.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('加载图库失败:', error);
+                galleryGrid.innerHTML = '<div class="gallery-empty">加载失败，请稍后重试</div>';
+                loadMoreBtn.style.display = 'none';
+            }
+        }
+
+        // 渲染图库网格
+        function renderGallery() {
+            if (galleryImages.length === 0) {
+                galleryGrid.innerHTML = '<div class="gallery-empty">暂无图片</div>';
+                return;
+            }
+            
+            galleryGrid.innerHTML = galleryImages.map((img, index) => `
+                <div class="gallery-item ${selectedGalleryImage === img.originalUrl ? 'selected' : ''}" 
+                     data-url="${img.originalUrl}" 
+                     data-index="${index}">
+                    <img src="${img.smallUrl || img.mediumUrl || img.originalUrl}" 
+                         alt="Gallery Image ${index + 1}" 
+                         loading="lazy">
+                </div>
+            `).join('');
+            
+            // 添加点击事件
+            galleryGrid.querySelectorAll('.gallery-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const url = item.dataset.url;
+                    selectedGalleryImage = url;
+                    
+                    // 更新选中状态
+                    galleryGrid.querySelectorAll('.gallery-item').forEach(i => {
+                        i.classList.remove('selected');
+                    });
+                    item.classList.add('selected');
+                    
+                    // 设置预览图片（不直接生成，让用户设置参数后点击生成按钮）
+                    selectedFile = null; // 清除上传的文件
+                    previewImage.src = url;
+                    previewArea.classList.add('active');
+                    fileInfo.textContent = `图库图片 | URL: ${url.substring(0, 30)}...`;
+                    
+                    // 切换到上传标签页，让用户设置情绪、文字、样式、滤镜
+                    document.querySelector('.tab-btn[data-tab="upload"]').click();
+                    
+                    hideError();
+                });
+            });
+        }
+
+
+        // 加载更多
+        loadMoreBtn.addEventListener('click', () => {
+            currentGalleryPage++;
+            if (currentGalleryCategory) {
+                loadGalleryImages('', currentGalleryPage, currentGalleryCategory);
+            } else if (currentGalleryQuery) {
+                loadGalleryImages(currentGalleryQuery, currentGalleryPage, '');
+            } else {
+                loadGalleryImages('', currentGalleryPage, '');
+            }
+        });
 
         // 点击上传区域
         uploadArea.addEventListener('click', () => {
@@ -650,8 +1011,9 @@
 
         // 生成情绪表情
         generateBtn.addEventListener('click', async () => {
-            if (!selectedFile) {
-                showError('请先选择图片');
+            // 检查是否有图片（上传的或图库的）
+            if (!selectedFile && !selectedGalleryImage) {
+                showError('请先选择图片或从图库选择');
                 return;
             }
 
@@ -661,9 +1023,8 @@
             hideError();
             generateBtn.disabled = true;
 
-            // 创建 FormData
+            // 创建 FormData（统一处理上传图片和图库图片）
             const formData = new FormData();
-            formData.append('image', selectedFile);
             formData.append('emotion', selectedEmotion);
             
             // 如果输入了自定义文字，添加到请求中
@@ -692,10 +1053,24 @@
             }
 
             try {
-                const response = await fetch('/api/meme/generate', {
-                    method: 'POST',
-                    body: formData
-                });
+                let response;
+                
+                // 判断是图库图片还是上传图片
+                if (selectedGalleryImage && !selectedFile) {
+                    // 图库图片：使用 generate-from-gallery 接口
+                    formData.append('imageUrl', selectedGalleryImage);
+                    response = await fetch('/api/meme/generate-from-gallery', {
+                        method: 'POST',
+                        body: formData
+                    });
+                } else {
+                    // 上传图片：使用 generate 接口
+                    formData.append('image', selectedFile);
+                    response = await fetch('/api/meme/generate', {
+                        method: 'POST',
+                        body: formData
+                    });
+                }
 
                 const data = await response.json();
 
@@ -731,11 +1106,16 @@
         // 重置表单
         function resetForm() {
             selectedFile = null;
+            selectedGalleryImage = null;
             resultImageUrl = null;
             previewArea.classList.remove('active');
             resultArea.classList.remove('active');
             fileInput.value = '';
             customTextInput.value = '';
+            // 清除图库选中状态
+            galleryGrid.querySelectorAll('.gallery-item').forEach(i => {
+                i.classList.remove('selected');
+            });
             hideError();
         }
 
