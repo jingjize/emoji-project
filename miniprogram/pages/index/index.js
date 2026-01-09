@@ -565,11 +565,19 @@ Page({
 
   // 选择图库图片
   selectGalleryImage(e) {
-    const imageUrl = e.currentTarget.dataset.imageurl;
+    const imageUrl = e.currentTarget.dataset.url; // 修复：使用 data-url 对应的 dataset.url
+    if (!imageUrl) {
+      wx.showToast({
+        title: '图片URL无效',
+        icon: 'none'
+      });
+      return;
+    }
+    
     this.setData({
       previewImage: imageUrl,
       selectedGalleryImage: imageUrl, // 标记这是图库图片
-      fileInfo: `图库图片 | URL: ${imageUrl.substring(0, 30)}...`,
+      fileInfo: `图库图片 | URL: ${imageUrl.length > 30 ? imageUrl.substring(0, 30) + '...' : imageUrl}`,
       canGenerate: true,
       error: '',
       resultImageUrl: '',
