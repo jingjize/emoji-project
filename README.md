@@ -175,15 +175,15 @@ curl -X POST http://localhost:8443/api/meme/generate \
 - `textStyle`（可选）：文字样式JSON，格式：
   ```json
   {
-    "textColor": "255,255,255",      // 文字颜色（RGB）
-    "strokeColor": "0,0,0",          // 描边颜色（RGB）
-    "strokeWidth": 3,                // 描边宽度（1-10）
-    "fontSize": 40,                  // 字体大小（20-100）
-    "position": "center",            // 位置：top/center/bottom
-    "fontName": "SimHei",            // 字体名称
-    "opacity": 1.0,                  // 透明度（0.0-1.0）
-    "rotation": 0,                   // 旋转角度（度）
-    "enableShadow": false            // 是否启用阴影
+    "textColor": "255,255,255",     
+    "strokeColor": "0,0,0",          
+    "strokeWidth": 3,                
+    "fontSize": 40,                  
+    "position": "center",            
+    "fontName": "SimHei",            
+    "opacity": 1.0,                  
+    "rotation": 0,                   
+    "enableShadow": false            
   }
   ```
 - `filter`（可选）：滤镜类型
@@ -211,8 +211,7 @@ curl http://localhost:8443/api/meme/filters
   "filters": {
     "none": {"name": "无滤镜", "description": "原图"},
     "grayscale": {"name": "黑白", "description": "经典黑白效果"},
-    "vintage": {"name": "复古", "description": "怀旧复古风格"},
-    ...
+    "vintage": {"name": "复古", "description": "怀旧复古风格"}
   }
 }
 ```
