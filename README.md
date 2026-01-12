@@ -409,6 +409,52 @@ emoji-project/
 - 文字长度建议不超过 50 个字符
 - 如果生成的图片是 OSS URL，系统会自动下载后再添加文字
 
+## 🚀 自动化部署
+
+项目支持使用 Git + 服务器端脚本实现自动化部署，无需每次手动上传源码。
+
+### 快速部署
+
+1. **在服务器上克隆项目**：
+   ```bash
+   git clone <your-repo-url> /opt/emoji-project
+   cd /opt/emoji-project
+   ```
+
+2. **配置环境变量**（编辑 `src/main/resources/application-prod.yml`）
+
+3. **执行部署脚本**：
+   ```bash
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
+
+### 自动更新
+
+**方式一：手动执行**
+```bash
+./deploy.sh
+```
+
+**方式二：定时自动检查更新**
+```bash
+# 配置 crontab（每小时检查一次）
+crontab -e
+# 添加：0 * * * * cd /opt/emoji-project && /bin/bash check-update.sh >> logs/cron.log 2>&1
+```
+
+### 详细文档
+
+完整的部署指南请参考：[DEPLOY.md](./DEPLOY.md)
+
+**部署脚本功能**：
+- ✅ 自动从 Git 拉取最新代码
+- ✅ 智能检测代码更新
+- ✅ 自动构建 Docker 镜像
+- ✅ 自动重启容器
+- ✅ 健康检查验证
+- ✅ 详细日志记录
+
 ## 后续扩展方向
 
 - ✅ 自定义文字功能（已完成）

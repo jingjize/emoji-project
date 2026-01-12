@@ -6,13 +6,16 @@ import com.example.meme.model.FilterType;
 import com.example.meme.model.GalleryImage;
 import com.example.meme.service.ImageGalleryService;
 import com.example.meme.service.MemeService;
+import com.example.meme.service.RateLimitService;
 import com.example.meme.util.ByteArrayMultipartFile;
+import com.example.meme.util.IpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,9 @@ public class MemeController {
     @Autowired
     private ImageGalleryService imageGalleryService;
     
+    @Autowired
+    private RateLimitService rateLimitService;
+    
     /**
      * 生成情绪表情图片接口
      * 
@@ -50,11 +56,23 @@ public class MemeController {
             @RequestParam(value = "emotion", defaultValue = "happy") String emotion,
             @RequestParam(value = "text", required = false) String text,
             @RequestParam(value = "textStyle", required = false) String textStyle,
-            @RequestParam(value = "filter", required = false) String filter) {
+            @RequestParam(value = "filter", required = false) String filter,
+            HttpServletRequest request) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
+            // 获取客户端IP并检查限流
+            String clientIp = IpUtils.getClientIp(request);
+            if (!rateLimitService.canGenerate(clientIp)) {
+                int remaining = rateLimitService.getRemainingCount(clientIp);
+                response.put("success", false);
+                response.put("message", "今日生成次数已达上限（20次/天），请明天再试");
+                response.put("imageUrl", null);
+                response.put("remaining", remaining);
+                return ResponseEntity.status(429).body(response); // 429 Too Many Requests
+            }
+            
             // 解析情绪类型
             EmotionType emotionType;
             try {
@@ -69,10 +87,15 @@ public class MemeController {
             // 调用服务生成情绪表情图片
             String imageUrl = memeService.generateEmotionImage(image, emotionType, text, textStyle, filterType);
             
+            // 生成成功，增加计数
+            rateLimitService.incrementCount(clientIp);
+            int remaining = rateLimitService.getRemainingCount(clientIp);
+            
             response.put("success", true);
             response.put("message", emotionType.getChineseName() + "表情图片生成成功");
             response.put("imageUrl", imageUrl);
             response.put("emotion", emotionType.getChineseName());
+            response.put("remaining", remaining);
             
             return ResponseEntity.ok(response);
             
@@ -282,11 +305,23 @@ public class MemeController {
             @RequestParam(value = "emotion", defaultValue = "happy") String emotion,
             @RequestParam(value = "text", required = false) String text,
             @RequestParam(value = "textStyle", required = false) String textStyle,
-            @RequestParam(value = "filter", required = false) String filter) {
+            @RequestParam(value = "filter", required = false) String filter,
+            HttpServletRequest request) {
         
         Map<String, Object> response = new HashMap<>();
         
         try {
+            // 获取客户端IP并检查限流
+            String clientIp = IpUtils.getClientIp(request);
+            if (!rateLimitService.canGenerate(clientIp)) {
+                int remaining = rateLimitService.getRemainingCount(clientIp);
+                response.put("success", false);
+                response.put("message", "今日生成次数已达上限（20次/天），请明天再试");
+                response.put("imageUrl", null);
+                response.put("remaining", remaining);
+                return ResponseEntity.status(429).body(response); // 429 Too Many Requests
+            }
+            
             // 下载图库图片
             byte[] imageBytes = imageGalleryService.downloadImage(imageUrl);
             
@@ -313,10 +348,15 @@ public class MemeController {
             String resultUrl = memeService.generateEmotionImage(
                     multipartFile, emotionType, text, textStyle, filterType);
             
+            // 生成成功，增加计数
+            rateLimitService.incrementCount(clientIp);
+            int remaining = rateLimitService.getRemainingCount(clientIp);
+            
             response.put("success", true);
             response.put("message", emotionType.getChineseName() + "表情图片生成成功");
             response.put("imageUrl", resultUrl);
             response.put("emotion", emotionType.getChineseName());
+            response.put("remaining", remaining);
             
             return ResponseEntity.ok(response);
             
