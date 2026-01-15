@@ -40,6 +40,7 @@ public class ImageGalleryService {
         this.webClient = WebClient.builder()
                 .defaultHeader("User-Agent", "MemeGenerator/1.0")
                 .exchangeStrategies(strategies)
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
                 .build();
         this.objectMapper = new ObjectMapper();
     }
@@ -150,12 +151,6 @@ public class ImageGalleryService {
         }
     }
     
-    /**
-     * 使用指定语言参数调用 Pixabay API（兼容旧方法，默认使用photo类型）
-     */
-    private List<GalleryImage> searchWithLang(String query, String lang, Integer page, Integer perPage) {
-        return searchWithLang(query, lang, page, perPage, "photo");
-    }
     
     /**
      * 判断文本是否包含中文字符

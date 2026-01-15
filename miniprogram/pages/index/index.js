@@ -21,6 +21,15 @@ Page({
     galleryLoading: false,
     galleryPage: 1,
     selectedGalleryImage: null,
+    // 黑话盒子相关
+    slangWord: '',
+    slangResult: false,
+    slangShortExplanation: '',
+    slangDetailedExplanation: '',
+    slangLoading: false,
+    slangExamples: [],
+    showDetailed: false,
+    slangRefreshing: false,
     galleryCategories: [
       { code: '', name: '全部' },
       { code: 'beauty', name: '靓女' },
@@ -47,6 +56,16 @@ Page({
     textColorRgb: '255,255,255',
     strokeColorRgb: '0,0,0',
     strokeWidth: 3,
+    // 图片风格相关
+    styleExpanded: true,
+    selectedStyle: 'original',
+    imageStyles: [
+      { code: 'original', name: '原样' },
+      { code: 'cartoon', name: '卡通风' },
+      { code: 'pixel', name: '像素风' },
+      { code: 'tough', name: '硬汉风' },
+      { code: 'realistic', name: '写实风' }
+    ],
     // 滤镜相关
     filterExpanded: false,
     selectedFilter: 'none',
@@ -77,6 +96,30 @@ Page({
 
   onLoad() {
     console.log('页面加载');
+    // 加载热门词语
+    this.loadHotSlangs();
+  },
+
+  // 加载热门词语
+  loadHotSlangs() {
+    wx.request({
+      url: `${app.globalData.apiBaseUrl}/slang/hot-words`,
+      method: 'GET',
+      success: (res) => {
+        if (res.data.success && res.data.hotSlangs && res.data.hotSlangs.length > 0) {
+          this.setData({
+            slangExamples: res.data.hotSlangs
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('加载热门词语失败:', err);
+        // 使用默认词语
+        this.setData({
+          slangExamples: ['yyds', '破防', '内卷', '社死', 'emo', '摆烂', '躺平', '打工人']
+        });
+      }
+    });
   },
 
   // 选择图片
@@ -138,6 +181,21 @@ Page({
   onTextInput(e) {
     this.setData({
       customText: e.detail.value
+    });
+  },
+
+  // 切换图片风格面板
+  toggleStyle() {
+    this.setData({
+      styleExpanded: !this.data.styleExpanded
+    });
+  },
+
+  // 选择图片风格
+  selectStyle(e) {
+    const style = e.currentTarget.dataset.style;
+    this.setData({
+      selectedStyle: style
     });
   },
 
@@ -291,6 +349,10 @@ Page({
     }
     
     // 添加滤镜参数
+    if (this.data.selectedStyle && this.data.selectedStyle !== 'original') {
+      formData['style'] = this.data.selectedStyle;
+    }
+    
     if (this.data.selectedFilter && this.data.selectedFilter !== 'none') {
       formData['filter'] = this.data.selectedFilter;
     }
@@ -469,6 +531,154 @@ Page({
     if (tab === 'gallery' && this.data.galleryImages.length === 0) {
       this.loadGalleryImages('', 1, '');
     }
+    // 如果切换到黑话盒子标签页，确保热门词语已加载
+    if (tab === 'slang' && this.data.slangExamples.length === 0) {
+      this.loadHotSlangs();
+    }
+  },
+
+  // 黑话输入
+  onSlangInput(e) {
+    this.setData({
+      slangWord: e.detail.value
+    });
+  },
+
+  // 加载热门词语
+  loadHotSlangs() {
+    wx.request({
+      url: `${app.globalData.apiBaseUrl}/slang/hot-words`,
+      method: 'GET',
+      success: (res) => {
+        if (res.data.success && res.data.hotSlangs) {
+          this.setData({
+            slangExamples: res.data.hotSlangs
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('加载热门词语失败:', err);
+        // 使用默认词语
+        this.setData({
+          slangExamples: ['yyds', '破防', '内卷', '社死', 'emo', '摆烂', '躺平', '打工人']
+        });
+      }
+    });
+  },
+
+  // 选择热门词语示例
+  selectSlangExample(e) {
+    const word = e.currentTarget.dataset.word;
+    this.setData({
+      slangWord: word
+    });
+    this.explainSlang();
+  },
+
+  // 解释黑话
+  explainSlang() {
+    const word = this.data.slangWord.trim();
+    
+    if (!word) {
+      wx.showToast({
+        title: '请输入需要解释的词语',
+        icon: 'none'
+      });
+      return;
+    }
+
+    this.setData({
+      slangLoading: true,
+      slangResult: false,
+      showDetailed: false
+    });
+
+    wx.request({
+      url: `${app.globalData.apiBaseUrl}/slang/explain`,
+      method: 'GET',
+      data: {
+        word: word
+      },
+      success: (res) => {
+        if (res.data.success) {
+          this.setData({
+            slangWord: res.data.word,
+            slangShortExplanation: res.data.shortExplanation || '暂无简短解释',
+            slangDetailedExplanation: res.data.detailedExplanation || '',
+            slangResult: true,
+            slangLoading: false
+          });
+        } else {
+          wx.showToast({
+            title: res.data.message || '解释失败',
+            icon: 'none'
+          });
+          this.setData({
+            slangLoading: false
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('解释失败:', err);
+        wx.showToast({
+          title: '网络错误，请重试',
+          icon: 'none'
+        });
+        this.setData({
+          slangLoading: false
+        });
+      }
+    });
+  },
+
+  // 切换详细说明显示
+  toggleDetailedExplanation() {
+    this.setData({
+      showDetailed: !this.data.showDetailed
+    });
+  },
+
+  // 刷新热门词语
+  refreshHotSlangs() {
+    this.setData({
+      slangRefreshing: true
+    });
+
+    wx.request({
+      url: `${app.globalData.apiBaseUrl}/slang/hot-words/refresh`,
+      method: 'POST',
+      success: (res) => {
+        if (res.data.success && res.data.hotSlangs && res.data.hotSlangs.length > 0) {
+          this.setData({
+            slangExamples: res.data.hotSlangs,
+            slangRefreshing: false
+          });
+          wx.showToast({
+            title: '刷新成功',
+            icon: 'success',
+            duration: 1500
+          });
+        } else {
+          wx.showToast({
+            title: res.data.message || '刷新失败',
+            icon: 'none'
+          });
+          this.setData({
+            slangRefreshing: false
+          });
+        }
+      },
+      fail: (err) => {
+        console.error('刷新热门词语失败:', err);
+        wx.showToast({
+          title: '刷新失败，请重试',
+          icon: 'none'
+        });
+        this.setData({
+          slangRefreshing: false
+        });
+      }
+    });
   },
 
   // 图库搜索输入

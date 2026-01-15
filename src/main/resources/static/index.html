@@ -377,6 +377,36 @@
             color: white;
         }
 
+        .style-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .style-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .style-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .style-btn.active {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
         .color-input-wrapper {
             display: flex;
             gap: 10px;
@@ -564,6 +594,182 @@
         .load-more-btn:hover {
             background: #e0e0e0;
         }
+
+        /* 黑话盒子样式 */
+        .slang-box {
+            padding: 20px;
+        }
+
+        .slang-header {
+            margin-bottom: 30px;
+        }
+
+        .slang-input-area {
+            margin-bottom: 30px;
+        }
+
+        .slang-input-wrapper {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .slang-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .slang-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .slang-search-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slang-search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .slang-search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slang-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .slang-examples-label {
+            font-size: 13px;
+            color: #999;
+            margin-right: 5px;
+        }
+
+        .slang-example-tag {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slang-example-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .slang-result {
+            background: #f8f9ff;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .slang-word {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .slang-short-explanation {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .slang-toggle {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .slang-toggle-btn {
+            padding: 8px 20px;
+            background: #f0f0f0;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slang-toggle-btn:hover {
+            background: #e0e0e0;
+            border-color: #667eea;
+        }
+
+        .slang-detailed-explanation {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #666;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .slang-loading-text {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .slang-loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .slang-loading .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -575,6 +781,7 @@
         <div class="tab-buttons">
             <button class="tab-btn active" data-tab="upload">📤 上传图片</button>
             <button class="tab-btn" data-tab="gallery">🖼️ 图库选择</button>
+            <button class="tab-btn" data-tab="slang">💬 黑话盒子</button>
         </div>
 
         <!-- 上传图片标签页 -->
@@ -589,6 +796,22 @@
         <div class="preview-area" id="previewArea">
             <img id="previewImage" class="preview-image" alt="预览图片">
             <div class="file-info" id="fileInfo"></div>
+            
+            <!-- 图片风格选择 -->
+            <div class="style-section" id="styleSection">
+                <div class="style-section-title" onclick="toggleSection('styleSection')">
+                    图片风格
+                </div>
+                <div class="style-section-content">
+                    <div class="style-buttons">
+                        <button class="style-btn active" data-style="original">原样</button>
+                        <button class="style-btn" data-style="cartoon">卡通风</button>
+                        <button class="style-btn" data-style="pixel">像素风</button>
+                        <button class="style-btn" data-style="tough">硬汉风</button>
+                        <button class="style-btn" data-style="realistic">写实风</button>
+                    </div>
+                </div>
+            </div>
             
             <div class="emotion-selector" id="emotionSelector">
                 <div class="emotion-label">选择情绪：</div>
@@ -711,6 +934,51 @@
             <button class="load-more-btn" id="loadMoreBtn" style="display: none;">加载更多</button>
         </div>
 
+        <!-- 黑话盒子标签页 -->
+        <div class="tab-content" id="slangTab">
+            <div class="slang-box">
+                <div class="slang-header">
+                    <h3 style="margin-bottom: 10px; color: #333;">💬 黑话盒子</h3>
+                    <p style="color: #666; font-size: 14px; margin-bottom: 20px;">输入互联网黑话或网络用语，AI 帮你解释含义、来源和使用场景</p>
+                </div>
+                <div class="slang-input-area">
+                    <div class="slang-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="slangInput" 
+                            class="slang-input" 
+                            placeholder="输入词语，如：yyds、破防、内卷、社死..."
+                            maxlength="50"
+                        >
+                        <button class="slang-search-btn" id="slangSearchBtn">解释</button>
+                    </div>
+                    <div class="slang-examples-wrapper">
+                        <div class="slang-examples-header">
+                            <span class="slang-examples-label">热门词语：</span>
+                            <button class="slang-refresh-btn" id="slangRefreshBtn" title="刷新热门词语">
+                                <span>🔄</span>
+                            </button>
+                        </div>
+                        <div class="slang-examples" id="slangExamples">
+                            <span class="slang-loading-text" id="slangLoadingText">加载中...</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="slang-result" id="slangResult" style="display: none;">
+                    <div class="slang-word" id="slangWord"></div>
+                    <div class="slang-short-explanation" id="slangShortExplanation"></div>
+                    <div class="slang-toggle" id="slangToggle" style="display: none;">
+                        <button class="slang-toggle-btn" id="slangToggleBtn">查看详细说明 ▼</button>
+                    </div>
+                    <div class="slang-detailed-explanation" id="slangDetailedExplanation" style="display: none;"></div>
+                </div>
+                <div class="slang-loading" id="slangLoading" style="display: none;">
+                    <div class="spinner"></div>
+                    <div class="loading-text">AI 正在分析中...</div>
+                </div>
+            </div>
+        </div>
+
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <div class="loading-text">AI 正在生成情绪表情图片...</div>
@@ -743,6 +1011,7 @@
         let resultImageUrl = null;
         let selectedEmotion = 'happy';
         let selectedFilter = 'none';
+        let selectedStyle = 'original';
 
         // 图库相关变量
         const galleryGrid = document.getElementById('galleryGrid');
@@ -773,6 +1042,14 @@
                 // 如果是图库标签页，加载默认图片
                 if (tab === 'gallery' && galleryImages.length === 0) {
                     loadGalleryImages('', 1, '');
+                }
+                // 如果是黑话盒子标签页，确保热门词语已加载
+                if (tab === 'slang') {
+                    const examplesContainer = document.getElementById('slangExamples');
+                    const existingTags = examplesContainer.querySelectorAll('.slang-example-tag');
+                    if (existingTags.length === 0) {
+                        loadHotSlangs();
+                    }
                 }
             });
         });
@@ -974,6 +1251,16 @@
         });
 
         // 滤镜选择按钮事件
+        // 风格选择
+        document.querySelectorAll('.style-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedStyle = btn.getAttribute('data-style');
+            });
+        });
+
+        // 滤镜选择
         document.querySelectorAll('.filter-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1049,6 +1336,11 @@
                     enableShadow: false
                 };
                 formData.append('textStyle', JSON.stringify(textStyle));
+            }
+            
+            // 添加风格参数
+            if (selectedStyle && selectedStyle !== 'original') {
+                formData.append('style', selectedStyle);
             }
             
             // 添加滤镜参数
@@ -1147,6 +1439,226 @@
                 return `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}`;
             }
             return '255,255,255';
+        }
+
+        // 黑话盒子相关变量
+        const slangInput = document.getElementById('slangInput');
+        const slangSearchBtn = document.getElementById('slangSearchBtn');
+        const slangResult = document.getElementById('slangResult');
+        const slangWord = document.getElementById('slangWord');
+        const slangExplanation = document.getElementById('slangExplanation');
+        const slangLoading = document.getElementById('slangLoading');
+        const slangRefreshBtn = document.getElementById('slangRefreshBtn');
+
+        // 黑话盒子搜索
+        slangSearchBtn.addEventListener('click', explainSlang);
+        slangInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                explainSlang();
+            }
+        });
+
+        // 加载热门词语
+        async function loadHotSlangs() {
+            try {
+                const response = await fetch('/api/meme/slang/hot-words');
+                const data = await response.json();
+                
+                const examplesContainer = document.getElementById('slangExamples');
+                const loadingText = examplesContainer.querySelector('.slang-loading-text');
+                
+                if (data.success && data.hotSlangs && data.hotSlangs.length > 0) {
+                    // 移除加载文本
+                    if (loadingText) {
+                        loadingText.remove();
+                    }
+                    
+                    // 清空现有标签（保留标签）
+                    const label = examplesContainer.querySelector('.slang-examples-label');
+                    const existingTags = examplesContainer.querySelectorAll('.slang-example-tag');
+                    existingTags.forEach(tag => tag.remove());
+                    
+                    // 添加新的热门词语标签
+                    data.hotSlangs.forEach(word => {
+                        const tag = document.createElement('span');
+                        tag.className = 'slang-example-tag';
+                        tag.textContent = word;
+                        tag.dataset.word = word;
+                        tag.addEventListener('click', () => {
+                            slangInput.value = word;
+                            explainSlang();
+                        });
+                        examplesContainer.appendChild(tag);
+                    });
+                } else {
+                    // 如果API失败，使用默认词语
+                    if (loadingText) {
+                        loadingText.remove();
+                    }
+                    const defaultWords = ['yyds', '破防', '内卷', '社死', 'emo', '摆烂', '躺平', '打工人'];
+                    defaultWords.forEach(word => {
+                        const tag = document.createElement('span');
+                        tag.className = 'slang-example-tag';
+                        tag.textContent = word;
+                        tag.dataset.word = word;
+                        tag.addEventListener('click', () => {
+                            slangInput.value = word;
+                            explainSlang();
+                        });
+                        examplesContainer.appendChild(tag);
+                    });
+                }
+            } catch (err) {
+                console.error('加载热门词语失败:', err);
+                // 使用默认词语
+                const examplesContainer = document.getElementById('slangExamples');
+                const loadingText = examplesContainer.querySelector('.slang-loading-text');
+                if (loadingText) {
+                    loadingText.remove();
+                }
+                const defaultWords = ['yyds', '破防', '内卷', '社死', 'emo', '摆烂', '躺平', '打工人'];
+                defaultWords.forEach(word => {
+                    const tag = document.createElement('span');
+                    tag.className = 'slang-example-tag';
+                    tag.textContent = word;
+                    tag.dataset.word = word;
+                    tag.addEventListener('click', () => {
+                        slangInput.value = word;
+                        explainSlang();
+                    });
+                    examplesContainer.appendChild(tag);
+                });
+            }
+        }
+
+        // 页面加载时获取热门词语
+        loadHotSlangs();
+
+        // 刷新热门词语按钮
+        slangRefreshBtn.addEventListener('click', refreshHotSlangs);
+
+        // 热门词语点击（动态绑定）
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('slang-example-tag')) {
+                const word = e.target.dataset.word;
+                slangInput.value = word;
+                explainSlang();
+            }
+        });
+
+        // 解释黑话
+        async function explainSlang() {
+            const word = slangInput.value.trim();
+            
+            if (!word) {
+                showError('请输入需要解释的词语');
+                return;
+            }
+
+            // 显示加载状态
+            slangLoading.style.display = 'block';
+            slangResult.style.display = 'none';
+            slangSearchBtn.disabled = true;
+            hideError();
+
+            try {
+                const response = await fetch(`/api/meme/slang/explain?word=${encodeURIComponent(word)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    slangWord.textContent = data.word;
+                    document.getElementById('slangShortExplanation').textContent = data.shortExplanation || '暂无简短解释';
+                    
+                    // 如果有详细说明，显示展开按钮
+                    const detailedExplanation = document.getElementById('slangDetailedExplanation');
+                    const toggleBtn = document.getElementById('slangToggleBtn');
+                    const toggleDiv = document.getElementById('slangToggle');
+                    
+                    if (data.detailedExplanation && data.detailedExplanation.trim()) {
+                        detailedExplanation.textContent = data.detailedExplanation;
+                        toggleDiv.style.display = 'block';
+                        detailedExplanation.style.display = 'none';
+                        toggleBtn.textContent = '查看详细说明 ▼';
+                    } else {
+                        toggleDiv.style.display = 'none';
+                    }
+                    
+                    slangResult.style.display = 'block';
+                } else {
+                    showError(data.message || '解释失败，请重试');
+                }
+            } catch (err) {
+                showError('网络错误：' + err.message);
+            } finally {
+                slangLoading.style.display = 'none';
+                slangSearchBtn.disabled = false;
+            }
+        }
+
+        // 切换详细说明显示
+        document.getElementById('slangToggleBtn').addEventListener('click', () => {
+            const detailedExplanation = document.getElementById('slangDetailedExplanation');
+            const toggleBtn = document.getElementById('slangToggleBtn');
+            
+            if (detailedExplanation.style.display === 'none') {
+                detailedExplanation.style.display = 'block';
+                toggleBtn.textContent = '收起详细说明 ▲';
+            } else {
+                detailedExplanation.style.display = 'none';
+                toggleBtn.textContent = '查看详细说明 ▼';
+            }
+        });
+
+        // 刷新热门词语
+        async function refreshHotSlangs() {
+            slangRefreshBtn.classList.add('loading');
+            slangRefreshBtn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/meme/slang/hot-words/refresh', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success && data.hotSlangs && data.hotSlangs.length > 0) {
+                    const examplesContainer = document.getElementById('slangExamples');
+                    const loadingText = examplesContainer.querySelector('.slang-loading-text');
+                    
+                    // 移除加载文本
+                    if (loadingText) {
+                        loadingText.remove();
+                    }
+                    
+                    // 清空现有标签
+                    const existingTags = examplesContainer.querySelectorAll('.slang-example-tag');
+                    existingTags.forEach(tag => tag.remove());
+                    
+                    // 添加新的热门词语标签
+                    data.hotSlangs.forEach(word => {
+                        const tag = document.createElement('span');
+                        tag.className = 'slang-example-tag';
+                        tag.textContent = word;
+                        tag.dataset.word = word;
+                        tag.addEventListener('click', () => {
+                            slangInput.value = word;
+                            explainSlang();
+                        });
+                        examplesContainer.appendChild(tag);
+                    });
+                    
+                    // 显示成功提示
+                    showError('热门词语已刷新');
+                    setTimeout(() => hideError(), 2000);
+                } else {
+                    showError('刷新失败，请重试');
+                }
+            } catch (err) {
+                console.error('刷新热门词语失败:', err);
+                showError('刷新失败：' + err.message);
+            } finally {
+                slangRefreshBtn.classList.remove('loading');
+                slangRefreshBtn.disabled = false;
+            }
         }
     </script>
 </body>

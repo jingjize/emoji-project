@@ -21,6 +21,13 @@
     >
       <text>🖼️ 图库选择</text>
     </view>
+    <view 
+      class="tab-btn {{currentTab === 'slang' ? 'active' : ''}}" 
+      bindtap="switchTab" 
+      data-tab="slang"
+    >
+      <text>💬 黑话盒子</text>
+    </view>
   </view>
 
   <!-- 上传图片标签页 -->
@@ -39,6 +46,29 @@
   <view wx:if="{{fileInfo}}" class="file-info">{{fileInfo}}</view>
 
   <!-- 情绪选择 -->
+      <!-- 图片风格选择 -->
+      <view class="style-section">
+        <view class="style-section-header" bindtap="toggleStyle">
+          <text class="style-section-title">图片风格</text>
+          <text class="style-section-arrow">{{styleExpanded ? '▼' : '▶'}}</text>
+        </view>
+        <view class="style-section-content" wx:if="{{styleExpanded}}">
+          <scroll-view class="style-buttons-scroll" scroll-x="true" enable-flex="true" show-scrollbar="false">
+            <view class="style-buttons">
+              <view 
+                wx:for="{{imageStyles}}" 
+                wx:key="code"
+                class="style-btn {{selectedStyle === item.code ? 'active' : ''}}"
+                bindtap="selectStyle"
+                data-style="{{item.code}}"
+              >
+                <text class="style-text">{{item.name}}</text>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+
   <view class="emotion-selector">
     <text class="emotion-label">选择情绪：</text>
     <view class="emotion-buttons">
@@ -245,6 +275,82 @@
         <text>暂无图片，请尝试搜索或选择分类</text>
       </view>
     </scroll-view>
+  </view>
+
+  <!-- 黑话盒子标签页 -->
+  <view class="tab-content" wx:if="{{currentTab === 'slang'}}">
+    <view class="slang-box">
+      <view class="slang-header">
+        <text class="slang-title">💬 黑话盒子</text>
+        <text class="slang-hint">输入互联网黑话或网络用语，AI 帮你解释含义、来源和使用场景</text>
+      </view>
+      <view class="slang-input-area">
+        <view class="slang-input-wrapper">
+          <input 
+            class="slang-input" 
+            type="text" 
+            placeholder="输入词语，如：yyds、破防、内卷..."
+            value="{{slangWord}}"
+            bindinput="onSlangInput"
+            confirm-type="search"
+            bindconfirm="explainSlang"
+            maxlength="50"
+          />
+          <button class="slang-search-btn" bindtap="explainSlang" disabled="{{slangLoading}}">
+            {{slangLoading ? '解释中...' : '解释'}}
+          </button>
+        </view>
+        <view class="slang-examples-wrapper">
+          <view class="slang-examples-header">
+            <text class="slang-examples-label">热门词语：</text>
+            <button 
+              class="slang-refresh-btn" 
+              bindtap="refreshHotSlangs"
+              disabled="{{slangRefreshing}}"
+              size="mini"
+            >
+              <text>{{slangRefreshing ? '刷新中...' : '🔄'}}</text>
+            </button>
+          </view>
+          <view class="slang-examples">
+            <text wx:if="{{slangExamples.length === 0}}" class="slang-loading-text">加载中...</text>
+            <view 
+              wx:for="{{slangExamples}}" 
+              wx:key="index"
+              wx:for-item="word"
+              class="slang-example-tag"
+              bindtap="selectSlangExample"
+              data-word="{{word}}"
+            >
+              {{word}}
+            </view>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{slangResult}}" class="slang-result">
+        <view class="slang-word">{{slangWord}}</view>
+        <view class="slang-short-explanation">{{slangShortExplanation}}</view>
+        <view wx:if="{{slangDetailedExplanation}}" class="slang-toggle">
+          <button 
+            class="slang-toggle-btn" 
+            bindtap="toggleDetailedExplanation"
+            size="mini"
+          >
+            {{showDetailed ? '收起详细说明 ▲' : '查看详细说明 ▼'}}
+          </button>
+        </view>
+        <view 
+          wx:if="{{showDetailed && slangDetailedExplanation}}" 
+          class="slang-detailed-explanation"
+        >
+          <text class="slang-detailed-text">{{slangDetailedExplanation}}</text>
+        </view>
+      </view>
+      <view wx:if="{{slangLoading}}" class="slang-loading">
+        <view class="loading-spinner"></view>
+        <text class="loading-text">AI 正在分析中...</text>
+      </view>
+    </view>
   </view>
 </view>
 

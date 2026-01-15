@@ -12,8 +12,8 @@
   "style": "v2",
   "sitemapLocation": "sitemap.json",
   "networkTimeout": {
-    "request": 10000,
-    "downloadFile": 10000
+    "request": 15000,
+    "downloadFile": 15000
   },
   "debug": false
 }

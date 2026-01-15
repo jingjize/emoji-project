@@ -3,6 +3,7 @@ package com.example.meme.service;
 import com.example.meme.client.AiClient;
 import com.example.meme.model.EmotionType;
 import com.example.meme.model.ImageGenerateResult;
+import com.example.meme.model.ImageStyle;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,11 +40,23 @@ public class ImageGenerateService {
      * @return 生成的表情包图片 URL
      */
     public String generateEmotionImage(byte[] imageBytes, EmotionType emotionType) throws IOException {
+        return generateEmotionImage(imageBytes, emotionType, ImageStyle.ORIGINAL);
+    }
+    
+    /**
+     * 生成情绪表情图片（支持风格）
+     * 
+     * @param imageBytes 原始图片字节数组
+     * @param emotionType 情绪类型
+     * @param style 图片风格
+     * @return 生成的表情包图片 URL
+     */
+    public String generateEmotionImage(byte[] imageBytes, EmotionType emotionType, ImageStyle style) throws IOException {
         // 将图片转换为 Base64
         String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
         
         // 调用 AI 生成表情图片
-        ImageGenerateResult result = aiClient.generateEmotionImage(imageBase64, emotionType);
+        ImageGenerateResult result = aiClient.generateEmotionImage(imageBase64, emotionType, style);
         
         String imageData = result.getImageUrl();
         if (imageData == null || imageData.isEmpty()) {

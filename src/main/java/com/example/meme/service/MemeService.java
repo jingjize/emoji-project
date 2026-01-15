@@ -3,6 +3,7 @@ package com.example.meme.service;
 import com.example.meme.model.EmotionType;
 import com.example.meme.model.FilterType;
 import com.example.meme.model.ImageUnderstandResult;
+import com.example.meme.model.ImageStyle;
 import com.example.meme.model.TextStyle;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,28 @@ public class MemeService {
             String customText,
             String textStyleJson,
             FilterType filterType) throws IOException {
+        return generateEmotionImage(imageFile, emotionType, customText, textStyleJson, filterType, ImageStyle.ORIGINAL);
+    }
+    
+    /**
+     * 生成情绪表情图片（支持样式、滤镜和风格）
+     * 
+     * @param imageFile 上传的图片文件
+     * @param emotionType 情绪类型
+     * @param customText 自定义文字（可选）
+     * @param textStyleJson 文字样式JSON（可选）
+     * @param filterType 滤镜类型（可选）
+     * @param imageStyle 图片风格（可选）
+     * @return 生成的表情包图片 URL
+     * @throws IOException 文件处理异常
+     */
+    public String generateEmotionImage(
+            MultipartFile imageFile, 
+            EmotionType emotionType, 
+            String customText,
+            String textStyleJson,
+            FilterType filterType,
+            ImageStyle imageStyle) throws IOException {
         // 1. 验证文件
         validateImageFile(imageFile);
         
@@ -61,7 +84,7 @@ public class MemeService {
         byte[] imageBytes = imageFile.getBytes();
         
         // 3. 调用 AI 生成情绪表情图片
-        String imageUrl = imageGenerateService.generateEmotionImage(imageBytes, emotionType);
+        String imageUrl = imageGenerateService.generateEmotionImage(imageBytes, emotionType, imageStyle);
         
         log.info("AI 生成的{}表情图片: {}", emotionType.getChineseName(), imageUrl);
         

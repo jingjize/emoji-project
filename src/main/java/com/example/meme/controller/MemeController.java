@@ -4,6 +4,9 @@ import com.example.meme.annotation.LogRequest;
 import com.example.meme.model.EmotionType;
 import com.example.meme.model.FilterType;
 import com.example.meme.model.GalleryImage;
+import com.example.meme.model.ImageStyle;
+import com.example.meme.service.AiService;
+import com.example.meme.service.HotSlangService;
 import com.example.meme.service.ImageGalleryService;
 import com.example.meme.service.MemeService;
 import com.example.meme.service.RateLimitService;
@@ -39,6 +42,12 @@ public class MemeController {
     @Autowired
     private RateLimitService rateLimitService;
     
+    @Autowired
+    private AiService aiService;
+    
+    @Autowired
+    private HotSlangService hotSlangService;
+    
     /**
      * 生成情绪表情图片接口
      * 
@@ -47,6 +56,7 @@ public class MemeController {
      * @param text 自定义文字（可选），如果提供，会将文字绘制到生成的图片上
      * @param textStyle 文字样式JSON（可选），格式：{"textColor":"255,255,255","strokeColor":"0,0,0","fontSize":40,"position":"center",...}
      * @param filter 滤镜类型（可选），none, grayscale, vintage, bright, dark, warm, cool, sepia, contrast, saturate
+     * @param style 图片风格（可选），cartoon, pixel, tough, original, realistic
      * @return 生成结果，包含图片 URL
      */
     @PostMapping("/generate")
@@ -57,6 +67,7 @@ public class MemeController {
             @RequestParam(value = "text", required = false) String text,
             @RequestParam(value = "textStyle", required = false) String textStyle,
             @RequestParam(value = "filter", required = false) String filter,
+            @RequestParam(value = "style", required = false) String style,
             HttpServletRequest request) {
         
         Map<String, Object> response = new HashMap<>();
@@ -84,8 +95,11 @@ public class MemeController {
             // 解析滤镜类型
             FilterType filterType = FilterType.fromCode(filter);
             
+            // 解析图片风格
+            ImageStyle imageStyle = ImageStyle.fromCode(style);
+            
             // 调用服务生成情绪表情图片
-            String imageUrl = memeService.generateEmotionImage(image, emotionType, text, textStyle, filterType);
+            String imageUrl = memeService.generateEmotionImage(image, emotionType, text, textStyle, filterType, imageStyle);
             
             // 生成成功，增加计数
             rateLimitService.incrementCount(clientIp);
@@ -306,6 +320,7 @@ public class MemeController {
             @RequestParam(value = "text", required = false) String text,
             @RequestParam(value = "textStyle", required = false) String textStyle,
             @RequestParam(value = "filter", required = false) String filter,
+            @RequestParam(value = "style", required = false) String style,
             HttpServletRequest request) {
         
         Map<String, Object> response = new HashMap<>();
@@ -344,9 +359,12 @@ public class MemeController {
             // 解析滤镜类型
             FilterType filterType = FilterType.fromCode(filter);
             
+            // 解析图片风格
+            ImageStyle imageStyle = ImageStyle.fromCode(style);
+            
             // 调用生成服务
             String resultUrl = memeService.generateEmotionImage(
-                    multipartFile, emotionType, text, textStyle, filterType);
+                    multipartFile, emotionType, text, textStyle, filterType, imageStyle);
             
             // 生成成功，增加计数
             rateLimitService.incrementCount(clientIp);
@@ -365,6 +383,113 @@ public class MemeController {
             response.put("success", false);
             response.put("message", "生成失败: " + e.getMessage());
             response.put("imageUrl", null);
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+    
+    /**
+     * 获取热门词语列表
+     * 每次调用都重新生成，确保返回最新、不同的词语
+     * 
+     * @return 热门词语列表
+     */
+    @GetMapping("/slang/hot-words")
+    @LogRequest("获取热门词语")
+    public ResponseEntity<Map<String, Object>> getHotSlangs() {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            List<String> hotSlangs = hotSlangService.getTodayHotSlangs();
+            
+            response.put("success", true);
+            response.put("hotSlangs", hotSlangs);
+            response.put("message", "获取成功");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("获取热门词语失败: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "获取失败: " + e.getMessage());
+            response.put("hotSlangs", new java.util.ArrayList<>());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+    
+    /**
+     * 手动刷新热门词语列表
+     * 重新从AI获取最新热门词语（与获取接口效果相同，但语义更清晰）
+     * 
+     * @return 刷新后的热门词语列表
+     */
+    @PostMapping("/slang/hot-words/refresh")
+    @LogRequest("刷新热门词语")
+    public ResponseEntity<Map<String, Object>> refreshHotSlangs() {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            // 重新生成热门词语（每次调用都会重新生成）
+            List<String> hotSlangs = hotSlangService.getTodayHotSlangs();
+            
+            response.put("success", true);
+            response.put("hotSlangs", hotSlangs);
+            response.put("message", "刷新成功");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("刷新热门词语失败: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "刷新失败: " + e.getMessage());
+            response.put("hotSlangs", new java.util.ArrayList<>());
+            
+            return ResponseEntity.internalServerError().body(response);
+        }
+    }
+    
+    /**
+     * 黑话盒子 - 解释互联网黑话/隐喻词语
+     * 使用 AI 分析词语的含义、来源、使用场景等
+     * 返回简短解释和详细说明
+     * 
+     * @param word 需要解释的词语
+     * @return 解释结果（包含简短解释和详细说明）
+     */
+    @GetMapping("/slang/explain")
+    @LogRequest("解释互联网黑话")
+    public ResponseEntity<Map<String, Object>> explainSlang(
+            @RequestParam("word") String word) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            if (word == null || word.trim().isEmpty()) {
+                response.put("success", false);
+                response.put("message", "请输入需要解释的词语");
+                response.put("shortExplanation", "");
+                response.put("detailedExplanation", "");
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            // 调用 AI 服务解释词语
+            com.example.meme.client.AiClient.SlangExplanation explanation = aiService.explainInternetSlang(word.trim());
+            
+            response.put("success", true);
+            response.put("word", word.trim());
+            response.put("shortExplanation", explanation.getShortExplanation());
+            response.put("detailedExplanation", explanation.getDetailedExplanation());
+            response.put("message", "解释成功");
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            log.error("解释词语失败: {}", e.getMessage(), e);
+            response.put("success", false);
+            response.put("message", "解释失败: " + e.getMessage());
+            response.put("shortExplanation", "");
+            response.put("detailedExplanation", "");
             
             return ResponseEntity.internalServerError().body(response);
         }
