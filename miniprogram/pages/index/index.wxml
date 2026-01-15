@@ -326,6 +326,27 @@
             </view>
           </view>
         </view>
+        <view class="slang-industry-wrapper">
+          <view class="slang-industry-header">
+            <text class="slang-industry-label">选择行业：</text>
+          </view>
+          <view class="slang-industry-buttons {{industryExpanded ? 'expanded' : ''}}">
+            <view 
+              wx:for="{{industries}}" 
+              wx:key="index"
+              wx:for-item="item"
+              wx:if="{{!item.hidden || industryExpanded}}"
+              class="slang-industry-btn {{selectedIndustry === item.code ? 'active' : ''}}"
+              bindtap="selectIndustry"
+              data-industry="{{item.code}}"
+            >
+              <text>{{item.name}}</text>
+            </view>
+          </view>
+          <view class="slang-industry-toggle" bindtap="toggleIndustryExpand">
+            <text class="slang-industry-icon">{{industryExpanded ? '收起 ▲' : '展开更多 ▼'}}</text>
+          </view>
+        </view>
       </view>
       <view wx:if="{{slangResult}}" class="slang-result">
         <view class="slang-word">{{slangWord}}</view>

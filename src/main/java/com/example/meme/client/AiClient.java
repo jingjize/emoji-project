@@ -637,6 +637,17 @@ public class AiClient {
      * @return 生成的文本
      */
     public String generateText(String prompt) {
+        return generateText(prompt, false);
+    }
+    
+    /**
+     * 生成文本内容（支持联网搜索）
+     * 
+     * @param prompt 提示词
+     * @param enableWebSearch 是否启用联网搜索
+     * @return 生成的文本
+     */
+    public String generateText(String prompt, boolean enableWebSearch) {
         try {
             // 构建文本消息
             MultiModalMessage userMessage = MultiModalMessage.builder()
@@ -646,12 +657,18 @@ public class AiClient {
                     ))
                     .build();
             
-            // 调用多模态对话 API
-            MultiModalConversationParam param = MultiModalConversationParam.builder()
+            // 构建参数
+            var paramBuilder = MultiModalConversationParam.builder()
                     .apiKey(apiKey)
                     .model(chatModel)
-                    .messages(Arrays.asList(userMessage))
-                    .build();
+                    .messages(Arrays.asList(userMessage));
+            
+            // 启用联网搜索功能
+            if (enableWebSearch) {
+                paramBuilder.enableSearch(true);
+            }
+            
+            MultiModalConversationParam param = paramBuilder.build();
             
             MultiModalConversationResult result = multiModalConversation.call(param);
             

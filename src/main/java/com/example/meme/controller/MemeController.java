@@ -396,15 +396,19 @@ public class MemeController {
      */
     @GetMapping("/slang/hot-words")
     @LogRequest("获取热门词语")
-    public ResponseEntity<Map<String, Object>> getHotSlangs() {
+    public ResponseEntity<Map<String, Object>> getHotSlangs(
+            @RequestParam(value = "industry", required = false) String industry) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            List<String> hotSlangs = hotSlangService.getTodayHotSlangs();
+            List<String> hotSlangs = hotSlangService.getTodayHotSlangs(industry);
             
             response.put("success", true);
             response.put("hotSlangs", hotSlangs);
             response.put("message", "获取成功");
+            if (industry != null && !industry.trim().isEmpty()) {
+                response.put("industry", industry);
+            }
             
             return ResponseEntity.ok(response);
             
@@ -426,16 +430,20 @@ public class MemeController {
      */
     @PostMapping("/slang/hot-words/refresh")
     @LogRequest("刷新热门词语")
-    public ResponseEntity<Map<String, Object>> refreshHotSlangs() {
+    public ResponseEntity<Map<String, Object>> refreshHotSlangs(
+            @RequestParam(value = "industry", required = false) String industry) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // 重新生成热门词语（每次调用都会重新生成）
-            List<String> hotSlangs = hotSlangService.getTodayHotSlangs();
+            // 重新生成热门词语（每次调用都会重新生成，可以指定行业）
+            List<String> hotSlangs = hotSlangService.getTodayHotSlangs(industry);
             
             response.put("success", true);
             response.put("hotSlangs", hotSlangs);
             response.put("message", "刷新成功");
+            if (industry != null && !industry.trim().isEmpty()) {
+                response.put("industry", industry);
+            }
             
             return ResponseEntity.ok(response);
             

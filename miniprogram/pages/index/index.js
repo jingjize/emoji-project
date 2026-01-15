@@ -30,6 +30,27 @@ Page({
     slangExamples: [],
     showDetailed: false,
     slangRefreshing: false,
+    selectedIndustry: '',
+    industryExpanded: false,
+    industries: [
+      { code: '', name: '随机' },
+      { code: '政治', name: '政治' },
+      { code: '游戏', name: '游戏' },
+      { code: '短视频', name: '短视频' },
+      { code: '娱乐圈', name: '娱乐圈' },
+      { code: '科技', name: '科技' },
+      { code: '体育', name: '体育' },
+      { code: '教育', name: '教育' },
+      { code: '财经', name: '财经' },
+      { code: '时尚', name: '时尚', hidden: true },
+      { code: '美食', name: '美食', hidden: true },
+      { code: '旅游', name: '旅游', hidden: true },
+      { code: '汽车', name: '汽车', hidden: true },
+      { code: '房产', name: '房产', hidden: true },
+      { code: '医疗', name: '医疗', hidden: true },
+      { code: '职场', name: '职场', hidden: true },
+      { code: '生活', name: '生活', hidden: true }
+    ],
     galleryCategories: [
       { code: '', name: '全部' },
       { code: 'beauty', name: '靓女' },
@@ -566,6 +587,23 @@ Page({
     });
   },
 
+  // 切换行业展开/收起
+  toggleIndustryExpand() {
+    this.setData({
+      industryExpanded: !this.data.industryExpanded
+    });
+  },
+
+  // 选择行业
+  selectIndustry(e) {
+    const industry = e.currentTarget.dataset.industry || '';
+    this.setData({
+      selectedIndustry: industry
+    });
+    // 重新加载热门词语
+    this.loadHotSlangs();
+  },
+
   // 选择热门词语示例
   selectSlangExample(e) {
     const word = e.currentTarget.dataset.word;
@@ -644,8 +682,13 @@ Page({
       slangRefreshing: true
     });
 
+    let url = `${app.globalData.apiBaseUrl}/slang/hot-words/refresh`;
+    if (this.data.selectedIndustry) {
+      url += `?industry=${encodeURIComponent(this.data.selectedIndustry)}`;
+    }
+
     wx.request({
-      url: `${app.globalData.apiBaseUrl}/slang/hot-words/refresh`,
+      url: url,
       method: 'POST',
       success: (res) => {
         if (res.data.success && res.data.hotSlangs && res.data.hotSlangs.length > 0) {

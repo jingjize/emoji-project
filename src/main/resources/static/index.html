@@ -702,6 +702,95 @@
             animation: spin 1s linear infinite;
         }
 
+        .slang-industry-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .slang-industry-header {
+            margin-bottom: 10px;
+        }
+
+        .slang-industry-label {
+            font-size: 13px;
+            color: #999;
+            margin-right: 5px;
+        }
+
+        .slang-industry-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 40px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .slang-industry-buttons.expanded {
+            max-height: 200px;
+        }
+
+        .slang-industry-btn {
+            padding: 6px 14px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .slang-industry-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .slang-industry-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .slang-industry-hidden {
+            display: none;
+        }
+
+        .slang-industry-buttons.expanded .slang-industry-hidden {
+            display: inline-block;
+        }
+
+        .slang-industry-toggle {
+            text-align: center;
+            margin-top: 10px;
+            padding: 12px 0;
+            cursor: pointer;
+            user-select: none;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .slang-industry-icon {
+            font-size: 12px;
+            display: inline-block;
+            padding: 6px 12px;
+            background: #f8f9ff;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            transition: all 0.3s;
+            line-height: 1;
+            cursor: pointer;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        .slang-industry-toggle:hover .slang-industry-icon {
+            background: #e8ebff;
+            transform: scale(1.1);
+        }
+
+        .slang-industry-buttons.expanded .slang-industry-more {
+            display: none;
+        }
+
         .slang-examples {
             display: flex;
             flex-wrap: wrap;
@@ -1010,6 +1099,33 @@
                         </div>
                         <div class="slang-examples" id="slangExamples">
                             <span class="slang-loading-text" id="slangLoadingText">加载中...</span>
+                        </div>
+                    </div>
+                    <div class="slang-industry-wrapper">
+                        <div class="slang-industry-header">
+                            <span class="slang-industry-label">选择行业：</span>
+                        </div>
+                        <div class="slang-industry-buttons" id="slangIndustryButtons">
+                            <button class="slang-industry-btn active" data-industry="">随机</button>
+                            <button class="slang-industry-btn" data-industry="政治">政治</button>
+                            <button class="slang-industry-btn" data-industry="游戏">游戏</button>
+                            <button class="slang-industry-btn" data-industry="短视频">短视频</button>
+                            <button class="slang-industry-btn" data-industry="娱乐圈">娱乐圈</button>
+                            <button class="slang-industry-btn" data-industry="科技">科技</button>
+                            <button class="slang-industry-btn" data-industry="体育">体育</button>
+                            <button class="slang-industry-btn" data-industry="教育">教育</button>
+                            <button class="slang-industry-btn" data-industry="财经">财经</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="时尚">时尚</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="美食">美食</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="旅游">旅游</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="汽车">汽车</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="房产">房产</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="医疗">医疗</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="职场">职场</button>
+                            <button class="slang-industry-btn slang-industry-hidden" data-industry="生活">生活</button>
+                        </div>
+                        <div class="slang-industry-toggle" id="slangIndustryToggle">
+                            <span class="slang-industry-icon">展开更多 ▼</span>
                         </div>
                     </div>
                 </div>
@@ -1513,10 +1629,38 @@
             }
         });
 
+        // 当前选中的行业
+        let selectedIndustry = '';
+
+        // 行业展开/收起切换
+        const industryButtons = document.getElementById('slangIndustryButtons');
+        const industryToggle = document.getElementById('slangIndustryToggle');
+        const industryIcon = industryToggle.querySelector('.slang-industry-icon');
+        industryToggle.addEventListener('click', () => {
+            const isExpanded = industryButtons.classList.toggle('expanded');
+            industryIcon.textContent = isExpanded ? '收起 ▲' : '展开更多 ▼';
+        });
+
+        // 行业选择按钮事件
+        document.querySelectorAll('.slang-industry-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 更新按钮状态
+                document.querySelectorAll('.slang-industry-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedIndustry = btn.dataset.industry || '';
+                // 重新加载热门词语
+                loadHotSlangs();
+            });
+        });
+
         // 加载热门词语
         async function loadHotSlangs() {
             try {
-                const response = await fetch('/api/meme/slang/hot-words');
+                let url = '/api/meme/slang/hot-words';
+                if (selectedIndustry) {
+                    url += '?industry=' + encodeURIComponent(selectedIndustry);
+                }
+                const response = await fetch(url);
                 const data = await response.json();
                 
                 const examplesContainer = document.getElementById('slangExamples');
@@ -1670,7 +1814,11 @@
             slangRefreshBtn.disabled = true;
             
             try {
-                const response = await fetch('/api/meme/slang/hot-words/refresh', {
+                let url = '/api/meme/slang/hot-words/refresh';
+                if (selectedIndustry) {
+                    url += '?industry=' + encodeURIComponent(selectedIndustry);
+                }
+                const response = await fetch(url, {
                     method: 'POST'
                 });
                 const data = await response.json();

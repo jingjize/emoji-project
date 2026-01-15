@@ -28,6 +28,12 @@ public class HotSlangService {
         "破圈", "出圈", "翻车", "翻盘", "真香", "打脸", "真香", "上头"
     );
     
+    // 行业分类列表
+    private static final List<String> INDUSTRIES = Arrays.asList(
+        "政治", "游戏", "短视频", "娱乐圈", "科技", "体育", "教育", "财经",
+        "时尚", "美食", "旅游", "汽车", "房产", "医疗", "职场", "生活"
+    );
+    
     /**
      * 获取热门词语列表
      * 每次调用都重新生成，确保返回最新、不同的词语
@@ -37,6 +43,22 @@ public class HotSlangService {
     public List<String> getTodayHotSlangs() {
         // 每次都重新生成，确保返回最新、不同的词语
         return updateHotSlangs();
+    }
+    
+    /**
+     * 根据行业获取热门词语列表
+     * 
+     * @param industry 行业分类（如：政治、游戏、短视频、娱乐圈等），如果为null则随机选择
+     * @return 热门词语列表（8个）
+     */
+    public List<String> getTodayHotSlangs(String industry) {
+        // 如果未指定行业，随机选择一个
+        String selectedIndustry = industry;
+        if (selectedIndustry == null || selectedIndustry.trim().isEmpty()) {
+            Collections.shuffle(INDUSTRIES);
+            selectedIndustry = INDUSTRIES.get(0);
+        }
+        return updateHotSlangs(selectedIndustry);
     }
     
     /**
@@ -56,10 +78,23 @@ public class HotSlangService {
      * @return 热门词语列表
      */
     private List<String> updateHotSlangs() {
+        // 随机选择一个行业
+        Collections.shuffle(INDUSTRIES);
+        String industry = INDUSTRIES.get(0);
+        return updateHotSlangs(industry);
+    }
+    
+    /**
+     * 根据行业更新热门词语列表
+     * 
+     * @param industry 行业分类
+     * @return 热门词语列表
+     */
+    private List<String> updateHotSlangs(String industry) {
         // 策略1：使用AI生成热门词语（主要方式）
-        List<String> aiWords = generateHotWordsFromAI();
+        List<String> aiWords = generateHotWordsFromAI(industry);
         if (aiWords != null && !aiWords.isEmpty() && aiWords.size() >= 4) {
-            log.info("从AI获取热门词语成功: {}", aiWords);
+            log.info("从AI获取{}行业热门词语成功: {}", industry, aiWords);
             return aiWords;
         }
         
@@ -74,8 +109,10 @@ public class HotSlangService {
     /**
      * 使用AI生成热门词语
      * 每次调用都会生成不同的、最新的热门词语
+     * 
+     * @param industry 行业分类（如：政治、游戏、短视频、娱乐圈等）
      */
-    private List<String> generateHotWordsFromAI() {
+    private List<String> generateHotWordsFromAI(String industry) {
         try {
             // 添加时间戳和随机性提示，确保每次返回不同的词语
             String currentTime = java.time.LocalDateTime.now().format(
@@ -83,20 +120,21 @@ public class HotSlangService {
             );
             
             String prompt = String.format(
-                "请推荐8个当前（%s）最热门的中国互联网网络用语/黑话，要求：\n" +
+                "请搜索当前（%s）%s领域最热门的中国互联网网络用语/黑话，并推荐8个，要求：\n" +
                 "1. 只返回词语本身，每行一个，不要编号，不要说明，不要引号\n" +
                 "2. 每个词语2-6个字符\n" +
                 "3. 返回格式：每行一个词语，共8行\n" +
                 "4. 只返回词语，不要其他文字、标点符号或说明\n" +
                 "5. 词语要真实存在且当前最新流行\n" +
-                "6. 尽量选择与之前推荐不同的词语，增加多样性\n" +
-                "7. 优先选择最近新出现的网络热词\n\n" +
+                "6. 词语要与%s领域相关\n" +
+                "7. 尽量选择与之前推荐不同的词语，增加多样性\n" +
+                "8. 优先选择最近新出现的网络热词\n\n" +
                 "请直接返回8个词语，每行一个，不要任何其他内容。",
-                currentTime
+                currentTime, industry, industry
             );
             
-            // 使用AI客户端调用
-            String response = aiClient.generateText(prompt);
+            // 使用AI客户端调用，启用联网搜索
+            String response = aiClient.generateText(prompt, true);
             
             if (response != null && !response.trim().isEmpty()) {
                 List<String> words = parseAIResponse(response);
