@@ -1,8 +1,8 @@
 <!--pages/index/index.wxml-->
 <view class="container">
   <view class="header">
-    <text class="title">🎭 AI 情绪表情生成器</text>
-    <text class="subtitle">上传图片或从图库选择，AI 自动生成不同情绪的表情图片</text>
+    <text class="title">🎭 AI表情盒子</text>
+    <text class="subtitle">AI生成表情包、头像，智能解释网络黑话</text>
   </view>
 
   <!-- 标签页切换 -->
@@ -299,18 +299,18 @@
           <button class="slang-search-btn" bindtap="explainSlang" disabled="{{slangLoading}}">
             {{slangLoading ? '解释中...' : '解释'}}
           </button>
+          <button 
+            class="slang-refresh-btn" 
+            bindtap="refreshHotSlangs"
+            disabled="{{slangRefreshing}}"
+            size="mini"
+          >
+            <text>{{slangRefreshing ? '刷新中...' : '↻'}}</text>
+          </button>
         </view>
         <view class="slang-examples-wrapper">
           <view class="slang-examples-header">
             <text class="slang-examples-label">热门词语：</text>
-            <button 
-              class="slang-refresh-btn" 
-              bindtap="refreshHotSlangs"
-              disabled="{{slangRefreshing}}"
-              size="mini"
-            >
-              <text>{{slangRefreshing ? '刷新中...' : '🔄'}}</text>
-            </button>
           </view>
           <view class="slang-examples">
             <text wx:if="{{slangExamples.length === 0}}" class="slang-loading-text">加载中...</text>
@@ -351,6 +351,12 @@
         <text class="loading-text">AI 正在分析中...</text>
       </view>
     </view>
+  </view>
+  
+  <!-- 作者信息 -->
+  <view class="footer-info">
+    <text>作者：芝麻丸</text>
+    <text>联系方式：15625735770</text>
   </view>
 </view>
 

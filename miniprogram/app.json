@@ -5,7 +5,7 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#667eea",
-    "navigationBarTitleText": "AI 情绪表情生成器",
+    "navigationBarTitleText": "AI表情盒子",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#f5f5f5"
   },

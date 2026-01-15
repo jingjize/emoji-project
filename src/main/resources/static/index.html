@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 表情包生成器</title>
+    <title>AI表情盒子</title>
     <style>
         * {
             margin: 0;
@@ -278,6 +278,20 @@
             font-size: 12px;
             color: #999;
             margin-top: 5px;
+        }
+
+        .footer-info {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #999;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .footer-info p {
+            margin: 4px 0;
         }
 
         .style-section {
@@ -653,6 +667,41 @@
             transform: none;
         }
 
+        .slang-refresh-btn {
+            padding: 12px 20px;
+            background: #f8f9ff;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 50px;
+        }
+
+        .slang-refresh-btn:hover {
+            background: #e8ebff;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .slang-refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .slang-refresh-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slang-refresh-btn.loading span {
+            animation: spin 1s linear infinite;
+        }
+
         .slang-examples {
             display: flex;
             flex-wrap: wrap;
@@ -774,8 +823,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎭 AI 情绪表情生成器</h1>
-        <p class="subtitle">上传图片或从图库选择，AI 自动生成不同情绪的表情图片</p>
+        <h1>🎭 AI表情盒子</h1>
+        <p class="subtitle">AI生成表情包、头像，智能解释网络黑话</p>
 
         <!-- 标签页切换 -->
         <div class="tab-buttons">
@@ -951,13 +1000,13 @@
                             maxlength="50"
                         >
                         <button class="slang-search-btn" id="slangSearchBtn">解释</button>
+                        <button class="slang-refresh-btn" id="slangRefreshBtn" title="刷新热门词语">
+                            <span>↻</span>
+                        </button>
                     </div>
                     <div class="slang-examples-wrapper">
                         <div class="slang-examples-header">
                             <span class="slang-examples-label">热门词语：</span>
-                            <button class="slang-refresh-btn" id="slangRefreshBtn" title="刷新热门词语">
-                                <span>🔄</span>
-                            </button>
                         </div>
                         <div class="slang-examples" id="slangExamples">
                             <span class="slang-loading-text" id="slangLoadingText">加载中...</span>
@@ -991,6 +1040,12 @@
             <img id="resultImage" class="result-image" alt="生成的表情包">
             <button class="btn" onclick="downloadImage()">下载表情包</button>
             <button class="btn" onclick="resetForm()" style="background: #999; margin-top: 10px;">重新生成</button>
+        </div>
+        
+        <!-- 作者信息 -->
+        <div class="footer-info">
+            <p>作者：芝麻丸</p>
+            <p>联系方式：15625735770</p>
         </div>
     </div>
 
