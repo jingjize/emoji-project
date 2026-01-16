@@ -207,11 +207,28 @@
   <view wx:if="{{error}}" class="error">{{error}}</view>
 
   <!-- 结果展示 -->
-  <view wx:if="{{resultImageUrl}}" class="result-area">
+  <view wx:if="{{resultImageUrl}}" class="result-area result-container">
     <text class="result-title">✨ {{resultEmotion}}表情生成完成！</text>
     <image src="{{resultImageUrl}}" class="result-image" mode="aspectFit" bindtap="previewImage"></image>
-    <button class="action-btn" bindtap="saveImage">保存到相册</button>
+    
+    <!-- 分享按钮区域 -->
+    <view class="action-buttons">
+      <button class="action-btn primary" bindtap="shareToWeChat">
+        <text class="btn-icon">💬</text>
+        <text>分享到微信</text>
+      </button>
+      <button class="action-btn" bindtap="saveImage">
+        <text class="btn-icon">💾</text>
+        <text>保存到相册</text>
+      </button>
+    </view>
+    
     <button class="action-btn secondary" bindtap="reset">重新生成</button>
+    
+    <!-- 分享提示 -->
+    <view class="share-tips">
+      <text class="tip-text">👉 点击右上角「···」也可以直接转发给好友</text>
+    </view>
   </view>
   </view>
 

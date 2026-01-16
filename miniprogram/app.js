@@ -7,7 +7,7 @@ App({
   
   globalData: {
     // 后端 API 地址，需要根据实际情况修改
-    apiBaseUrl: 'http://localhost:8443/api/meme',
+    apiBaseUrl: 'http://192.168.137.1:8443/api/meme',
     // apiBaseUrl: 'http://ai-emoji.top:8443/api/meme',
     // apiBaseUrl: 'http://121.89.95.140:8443/api/meme',
     // 如果部署到服务器，修改为：https://121.89.95.140/api/meme

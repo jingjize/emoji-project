@@ -15,5 +15,10 @@
     "request": 15000,
     "downloadFile": 15000
   },
-  "debug": false
+  "debug": false,
+  "permission": {
+    "scope.writePhotosAlbum": {
+      "desc": "保存表情包到相册"
+    }
+  }
 }

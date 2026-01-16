@@ -115,10 +115,44 @@ Page({
     ]
   },
 
-  onLoad() {
+  onLoad(options) {
     console.log('页面加载');
     // 加载热门词语
     this.loadHotSlangs();
+    
+    // 处理分享参数：如果是从分享链接进来的，显示分享的表情包
+    if (options.shareImageUrl) {
+      const imageUrl = decodeURIComponent(options.shareImageUrl);
+      const emotion = options.emotion || 'happy';
+      
+      this.setData({
+        resultImageUrl: imageUrl,
+        selectedEmotion: emotion,
+        resultEmotion: this.getEmotionChineseName(emotion)
+      });
+      
+      wx.showModal({
+        title: '🎉 好友分享的表情包',
+        content: '这是好友用AI生成的表情包，你也来试试吧！',
+        confirmText: '我也要做',
+        cancelText: '先看看',
+        success: (res) => {
+          if (!res.confirm) {
+            // 选择“先看看”，滚动到结果区域
+            wx.pageScrollTo({
+              selector: '.result-container',
+              duration: 300
+            });
+          }
+        }
+      });
+    }
+  },
+  
+  // 获取情绪的中文名称
+  getEmotionChineseName(englishName) {
+    const emotion = this.data.emotions.find(e => e.englishName === englishName);
+    return emotion ? emotion.chineseName : '表情';
   },
 
   // 加载热门词语
@@ -871,6 +905,189 @@ Page({
       filterExpanded: false,
       selectedFilter: 'none'
     });
+  },
+
+  // ==================== 分享功能 ====================
+  
+  /**
+   * 分享给好友/群聊（点击右上角转发按钮）
+   * 微信小程序原生分享功能
+   */
+  onShareAppMessage() {
+    // 如果生成了表情包，分享表情包结果
+    if (this.data.resultImageUrl) {
+      return {
+        title: `我用AI做了个${this.data.resultEmotion}表情包，超好玩！`,
+        path: `/pages/index/index?shareImageUrl=${encodeURIComponent(this.data.resultImageUrl)}&emotion=${this.data.selectedEmotion}`,
+        imageUrl: this.data.resultImageUrl.startsWith('http') ? this.data.resultImageUrl : '', // OSS图片可以直接用
+        success: () => {
+          wx.showToast({
+            title: '分享成功',
+            icon: 'success'
+          });
+        }
+      };
+    }
+    // 默认分享（邀请好友使用）
+    return {
+      title: 'AI表情盒子 - 一键生成个性表情包',
+      path: '/pages/index/index',
+      imageUrl: '', // 可以设置默认分享图
+      success: () => {
+        wx.showToast({
+          title: '分享成功',
+          icon: 'success'
+        });
+      }
+    };
+  },
+
+  /**
+   * 分享到朋友圈（点击右上角选择朋友圈）
+   * 需要在小程序后台配置
+   */
+  onShareTimeline() {
+    // 如果生成了表情包，分享表情包
+    if (this.data.resultImageUrl) {
+      return {
+        title: `我用AI做了个${this.data.resultEmotion}表情包！`,
+        query: `shareImageUrl=${encodeURIComponent(this.data.resultImageUrl)}&emotion=${this.data.selectedEmotion}`,
+        imageUrl: this.data.resultImageUrl.startsWith('http') ? this.data.resultImageUrl : ''
+      };
+    }
+    // 默认分享
+    return {
+      title: 'AI表情盒子 - 一键生成个性表情包',
+      query: '',
+      imageUrl: ''
+    };
+  },
+
+  /**
+   * 主动触发分享（显示分享菜单）
+   */
+  shareToWeChat() {
+    if (!this.data.resultImageUrl) {
+      wx.showToast({
+        title: '请先生成表情包',
+        icon: 'none'
+      });
+      return;
+    }
+
+    wx.showActionSheet({
+      itemList: ['保存到相册后分享', '直接转发给好友'],
+      success: (res) => {
+        if (res.tapIndex === 0) {
+          // 保存到相册
+          this.saveImageAndShare();
+        } else if (res.tapIndex === 1) {
+          // 显示转发引导提示
+          wx.showModal({
+            title: '转发给好友',
+            content: '请点击右上角「···」按钮，选择「转发」分享给好友或群聊',
+            showCancel: false,
+            confirmText: '我知道了'
+          });
+        }
+      }
+    });
+  },
+
+  /**
+   * 保存图片并引导分享
+   */
+  saveImageAndShare() {
+    if (!this.data.resultImageUrl) {
+      return;
+    }
+
+    const that = this;
+    wx.showLoading({
+      title: '保存中...'
+    });
+
+    // 下载图片
+    const downloadAndSave = (imageUrl) => {
+      wx.downloadFile({
+        url: imageUrl,
+        success(res) {
+          if (res.statusCode === 200) {
+            wx.saveImageToPhotosAlbum({
+              filePath: res.tempFilePath,
+              success() {
+                wx.hideLoading();
+                // 显示分享引导
+                wx.showModal({
+                  title: '✅ 保存成功',
+                  content: '图片已保存到相册\n\n快去微信发给好友吧！\n\n📱 打开微信 → 选择聊天 → 点击相册 → 选择刚保存的图片',
+                  showCancel: false,
+                  confirmText: '好的'
+                });
+              },
+              fail(err) {
+                wx.hideLoading();
+                if (err.errMsg.includes('auth deny')) {
+                  wx.showModal({
+                    title: '需要授权',
+                    content: '需要您授权保存图片到相册',
+                    confirmText: '去授权',
+                    success(res) {
+                      if (res.confirm) {
+                        wx.openSetting();
+                      }
+                    }
+                  });
+                } else {
+                  wx.showToast({
+                    title: '保存失败',
+                    icon: 'none'
+                  });
+                }
+              }
+            });
+          } else {
+            wx.hideLoading();
+            wx.showToast({
+              title: '下载失败',
+              icon: 'none'
+            });
+          }
+        },
+        fail(err) {
+          wx.hideLoading();
+          wx.showToast({
+            title: '下载失败',
+            icon: 'none'
+          });
+        }
+      });
+    };
+
+    // 判断是否需要下载
+    if (this.data.resultImageUrl.startsWith('http://') || this.data.resultImageUrl.startsWith('https://')) {
+      downloadAndSave(this.data.resultImageUrl);
+    } else {
+      // 本地文件直接保存
+      wx.saveImageToPhotosAlbum({
+        filePath: this.data.resultImageUrl,
+        success() {
+          wx.hideLoading();
+          wx.showModal({
+            title: '✅ 保存成功',
+            content: '图片已保存到相册\n\n快去微信发给好友吧！',
+            showCancel: false
+          });
+        },
+        fail(err) {
+          wx.hideLoading();
+          wx.showToast({
+            title: '保存失败',
+            icon: 'none'
+          });
+        }
+      });
+    }
   }
 })
 
