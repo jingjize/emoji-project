@@ -174,6 +174,28 @@ public class MemeController {
     }
     
     /**
+     * 获取所有支持的图片风格类型
+     */
+    @GetMapping("/styles")
+    @LogRequest("获取图片风格类型")
+    public ResponseEntity<Map<String, Object>> getStyles() {
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Map<String, String>> styles = new HashMap<>();
+        
+        for (ImageStyle type : ImageStyle.values()) {
+            Map<String, String> styleInfo = new HashMap<>();
+            styleInfo.put("name", type.getName());
+            styleInfo.put("description", type.getDescription());
+            styles.put(type.getCode(), styleInfo);
+        }
+        
+        response.put("success", true);
+        response.put("styles", styles);
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    /**
      * 健康检查接口
      */
     @GetMapping("/health")

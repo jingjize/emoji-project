@@ -55,7 +55,7 @@ public class MemeService {
             String customText,
             String textStyleJson,
             FilterType filterType) throws IOException {
-        return generateEmotionImage(imageFile, emotionType, customText, textStyleJson, filterType, ImageStyle.ORIGINAL);
+        return generateEmotionImage(imageFile, emotionType, customText, textStyleJson, filterType, ImageStyle.CHIBI);
     }
     
     /**

@@ -45,30 +45,6 @@
   <!-- 文件信息 -->
   <view wx:if="{{fileInfo}}" class="file-info">{{fileInfo}}</view>
 
-  <!-- 情绪选择 -->
-      <!-- 图片风格选择 -->
-      <view class="style-section">
-        <view class="style-section-header" bindtap="toggleStyle">
-          <text class="style-section-title">图片风格</text>
-          <text class="style-section-arrow">{{styleExpanded ? '▼' : '▶'}}</text>
-        </view>
-        <view class="style-section-content" wx:if="{{styleExpanded}}">
-          <scroll-view class="style-buttons-scroll" scroll-x="true" enable-flex="true" show-scrollbar="false">
-            <view class="style-buttons">
-              <view 
-                wx:for="{{imageStyles}}" 
-                wx:key="code"
-                class="style-btn {{selectedStyle === item.code ? 'active' : ''}}"
-                bindtap="selectStyle"
-                data-style="{{item.code}}"
-              >
-                <text class="style-text">{{item.name}}</text>
-              </view>
-            </view>
-          </scroll-view>
-        </view>
-      </view>
-
   <view class="emotion-selector">
     <text class="emotion-label">选择情绪：</text>
     <view class="emotion-buttons">
@@ -163,27 +139,6 @@
           bindchange="onStrokeWidthChange"
           activeColor="#667eea"
         />
-      </view>
-    </view>
-  </view>
-
-  <!-- 滤镜选择 -->
-  <view class="style-section">
-    <view class="style-section-header" bindtap="toggleFilter">
-      <text class="style-section-title">滤镜效果</text>
-      <text class="style-section-arrow">{{filterExpanded ? '▼' : '▶'}}</text>
-    </view>
-    <view class="style-section-content" wx:if="{{filterExpanded}}">
-      <view class="filter-buttons">
-        <view 
-          wx:for="{{filters}}" 
-          wx:key="code"
-          class="filter-btn {{selectedFilter === item.code ? 'active' : ''}}"
-          bindtap="selectFilter"
-          data-filter="{{item.code}}"
-        >
-          <text class="filter-text">{{item.name}}</text>
-        </view>
       </view>
     </view>
   </view>

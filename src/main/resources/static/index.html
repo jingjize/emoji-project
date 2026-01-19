@@ -935,22 +935,6 @@
             <img id="previewImage" class="preview-image" alt="预览图片">
             <div class="file-info" id="fileInfo"></div>
             
-            <!-- 图片风格选择 -->
-            <div class="style-section" id="styleSection">
-                <div class="style-section-title" onclick="toggleSection('styleSection')">
-                    图片风格
-                </div>
-                <div class="style-section-content">
-                    <div class="style-buttons">
-                        <button class="style-btn active" data-style="original">原样</button>
-                        <button class="style-btn" data-style="cartoon">卡通风</button>
-                        <button class="style-btn" data-style="pixel">像素风</button>
-                        <button class="style-btn" data-style="tough">硬汉风</button>
-                        <button class="style-btn" data-style="realistic">写实风</button>
-                    </div>
-                </div>
-            </div>
-            
             <div class="emotion-selector" id="emotionSelector">
                 <div class="emotion-label">选择情绪：</div>
                 <div class="emotion-buttons">
@@ -963,6 +947,16 @@
                     <button class="emotion-btn" data-emotion="calm">😌 平静</button>
                     <button class="emotion-btn" data-emotion="shy">😳 害羞</button>
                     <button class="emotion-btn" data-emotion="playful">😜 调皮</button>
+                </div>
+            </div>
+
+            <div class="emotion-selector" id="styleSelector">
+                <div class="emotion-label">选择风格：</div>
+                <div class="emotion-buttons">
+                    <button class="emotion-btn active" data-style="standard">😊 标准可爱</button>
+                    <button class="emotion-btn" data-style="cartoon">🎉 Q版卡通</button>
+                    <button class="emotion-btn" data-style="minimal">✨ 简约风</button>
+                    <button class="emotion-btn" data-style="watercolor">🎨 水彩风</button>
                 </div>
             </div>
 
@@ -1015,27 +1009,6 @@
                     <div class="style-row">
                         <label class="style-label">描边宽度：</label>
                         <input type="number" id="strokeWidth" class="style-input" value="3" min="1" max="10">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 滤镜选择 -->
-            <div class="style-section" id="filterSection">
-                <div class="style-section-title" onclick="toggleSection('filterSection')">
-                    滤镜效果
-                </div>
-                <div class="style-section-content">
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="none">无滤镜</button>
-                        <button class="filter-btn" data-filter="grayscale">黑白</button>
-                        <button class="filter-btn" data-filter="vintage">复古</button>
-                        <button class="filter-btn" data-filter="bright">明亮</button>
-                        <button class="filter-btn" data-filter="dark">暗调</button>
-                        <button class="filter-btn" data-filter="warm">暖色</button>
-                        <button class="filter-btn" data-filter="cool">冷色</button>
-                        <button class="filter-btn" data-filter="sepia">怀旧</button>
-                        <button class="filter-btn" data-filter="contrast">高对比</button>
-                        <button class="filter-btn" data-filter="saturate">高饱和</button>
                     </div>
                 </div>
             </div>
@@ -1181,8 +1154,6 @@
         let selectedFile = null;
         let resultImageUrl = null;
         let selectedEmotion = 'happy';
-        let selectedFilter = 'none';
-        let selectedStyle = 'original';
 
         // 图库相关变量
         const galleryGrid = document.getElementById('galleryGrid');
@@ -1413,30 +1384,21 @@
         }
 
         // 情绪选择按钮事件
-        document.querySelectorAll('.emotion-btn').forEach(btn => {
+        document.querySelectorAll('#emotionSelector .emotion-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#emotionSelector .emotion-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 selectedEmotion = btn.getAttribute('data-emotion');
             });
         });
 
-        // 滤镜选择按钮事件
-        // 风格选择
-        document.querySelectorAll('.style-btn').forEach(btn => {
+        // 风格选择按钮事件
+        let selectedStyle = 'standard'; // 默认标准可爱风
+        document.querySelectorAll('#styleSelector .emotion-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#styleSelector .emotion-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 selectedStyle = btn.getAttribute('data-style');
-            });
-        });
-
-        // 滤镜选择
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedFilter = btn.getAttribute('data-filter');
             });
         });
 
@@ -1488,6 +1450,7 @@
             // 创建 FormData（统一处理上传图片和图库图片）
             const formData = new FormData();
             formData.append('emotion', selectedEmotion);
+            formData.append('style', selectedStyle); // 添加风格参数
             
             // 如果输入了自定义文字，添加到请求中
             const customText = customTextInput.value.trim();
@@ -1507,16 +1470,6 @@
                     enableShadow: false
                 };
                 formData.append('textStyle', JSON.stringify(textStyle));
-            }
-            
-            // 添加风格参数
-            if (selectedStyle && selectedStyle !== 'original') {
-                formData.append('style', selectedStyle);
-            }
-            
-            // 添加滤镜参数
-            if (selectedFilter && selectedFilter !== 'none') {
-                formData.append('filter', selectedFilter);
             }
 
             try {

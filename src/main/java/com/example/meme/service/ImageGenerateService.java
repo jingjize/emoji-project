@@ -40,7 +40,7 @@ public class ImageGenerateService {
      * @return 生成的表情包图片 URL
      */
     public String generateEmotionImage(byte[] imageBytes, EmotionType emotionType) throws IOException {
-        return generateEmotionImage(imageBytes, emotionType, ImageStyle.ORIGINAL);
+        return generateEmotionImage(imageBytes, emotionType, ImageStyle.CHIBI);
     }
     
     /**

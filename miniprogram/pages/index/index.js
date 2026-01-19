@@ -77,31 +77,6 @@ Page({
     textColorRgb: '255,255,255',
     strokeColorRgb: '0,0,0',
     strokeWidth: 3,
-    // 图片风格相关
-    styleExpanded: true,
-    selectedStyle: 'original',
-    imageStyles: [
-      { code: 'original', name: '原样' },
-      { code: 'cartoon', name: '卡通风' },
-      { code: 'pixel', name: '像素风' },
-      { code: 'tough', name: '硬汉风' },
-      { code: 'realistic', name: '写实风' }
-    ],
-    // 滤镜相关
-    filterExpanded: false,
-    selectedFilter: 'none',
-    filters: [
-      { code: 'none', name: '无滤镜' },
-      { code: 'grayscale', name: '黑白' },
-      { code: 'vintage', name: '复古' },
-      { code: 'bright', name: '明亮' },
-      { code: 'dark', name: '暗调' },
-      { code: 'warm', name: '暖色' },
-      { code: 'cool', name: '冷色' },
-      { code: 'sepia', name: '怀旧' },
-      { code: 'contrast', name: '高对比' },
-      { code: 'saturate', name: '高饱和' }
-    ],
     emotions: [
       { englishName: 'happy', chineseName: '高兴', icon: '😊' },
       { englishName: 'sad', chineseName: '伤心', icon: '😢' },
@@ -239,32 +214,10 @@ Page({
     });
   },
 
-  // 切换图片风格面板
-  toggleStyle() {
-    this.setData({
-      styleExpanded: !this.data.styleExpanded
-    });
-  },
-
-  // 选择图片风格
-  selectStyle(e) {
-    const style = e.currentTarget.dataset.style;
-    this.setData({
-      selectedStyle: style
-    });
-  },
-
   // 切换文字样式面板
   toggleTextStyle() {
     this.setData({
       textStyleExpanded: !this.data.textStyleExpanded
-    });
-  },
-
-  // 切换滤镜面板
-  toggleFilter() {
-    this.setData({
-      filterExpanded: !this.data.filterExpanded
     });
   },
 
@@ -352,14 +305,6 @@ Page({
     });
   },
 
-  // 选择滤镜
-  selectFilter(e) {
-    const filter = e.currentTarget.dataset.filter;
-    this.setData({
-      selectedFilter: filter
-    });
-  },
-
   // 生成表情包（统一处理上传图片和图库图片）
   generateMeme() {
     if (!this.data.previewImage) {
@@ -379,7 +324,7 @@ Page({
 
     const that = this;
     
-    // 构建请求参数（情绪、文字、样式、滤镜）
+    // 构建请求参数（情绪、文字、样式）
     const formData = {
       'emotion': this.data.selectedEmotion
     };
@@ -401,15 +346,6 @@ Page({
         enableShadow: false
       };
       formData['textStyle'] = JSON.stringify(textStyle);
-    }
-    
-    // 添加滤镜参数
-    if (this.data.selectedStyle && this.data.selectedStyle !== 'original') {
-      formData['style'] = this.data.selectedStyle;
-    }
-    
-    if (this.data.selectedFilter && this.data.selectedFilter !== 'none') {
-      formData['filter'] = this.data.selectedFilter;
     }
     
     // 判断是图库图片还是上传图片

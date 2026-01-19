@@ -1,7 +1,9 @@
 package com.example.meme.client;
 
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesis;
-import com.alibaba.dashscope.aigc.imagesynthesis.ImageSynthesisParam;
+import com.alibaba.dashscope.aigc.imagegeneration.ImageGeneration;
+import com.alibaba.dashscope.aigc.imagegeneration.ImageGenerationParam;
+import com.alibaba.dashscope.aigc.imagegeneration.ImageGenerationResult;
+import com.alibaba.dashscope.aigc.imagegeneration.ImageGenerationMessage;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversation;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationParam;
 import com.alibaba.dashscope.aigc.multimodalconversation.MultiModalConversationResult;
@@ -43,12 +45,12 @@ public class AiClient {
     @Value("${spring.ai.dashscope.image.options.size:1328*1328}")
     private String imageSize;
     
-    private final ImageSynthesis imageSynthesis;
+    private final ImageGeneration imageGeneration;
     private final MultiModalConversation multiModalConversation;
     private final ObjectMapper objectMapper;
     
     public AiClient() {
-        this.imageSynthesis = new ImageSynthesis();
+        this.imageGeneration = new ImageGeneration();
         this.multiModalConversation = new MultiModalConversation();
         this.objectMapper = new ObjectMapper();
     }
@@ -62,8 +64,20 @@ public class AiClient {
      */
     public ImageUnderstandResult understandImage(String imageBase64) {
         try {
-            // 构建提示词
-            String promptText = "请仔细观察这张图片，理解图片的内容和情绪。请以 JSON 格式返回，格式：{\"description\": \"图片描述\", \"text\": \"简短描述\"}";
+            // 构建提示词（直接要求英文描述，限制400字符，参考特定格式）
+            String promptText = "Describe this image in English following this format example: " +
+                    "'Young anime female. Long black hair with pink gradient. Large blue eyes, blush. " +
+                    "Same face, hairstyle, hair color, eye color. Visible upper body keeps original outfit: " +
+                    "black T-shirt with smiley faces. Simplified, recognizable, no new outfit.' " +
+                    "\n\nFocus on: " +
+                    "1. Character basic info (age, gender, anime style) " +
+                    "2. Hair (style, color, any gradients or highlights) " +
+                    "3. Eyes (color, features) " +
+                    "4. Expression/emotion (blush, smile, etc.) " +
+                    "5. Upper body clothing ONLY (type, color, patterns) " +
+                    "\nDO NOT describe: background, full body, arms, hands, legs, lower body. " +
+                    "IMPORTANT: Total under 400 characters. Use short sentences. " +
+                    "Return JSON: {\"description\": \"English description (max 400 chars)\", \"text\": \"Short summary\"}";
             
             // 构建多模态消息（图片 + 文本）
             MultiModalMessage userMessage = MultiModalMessage.builder()
@@ -149,7 +163,7 @@ public class AiClient {
      * @return 生成的图片结果
      */
     public ImageGenerateResult generateEmotionImage(String imageBase64, EmotionType emotionType) {
-        return generateEmotionImage(imageBase64, emotionType, com.example.meme.model.ImageStyle.ORIGINAL);
+        return generateEmotionImage(imageBase64, emotionType, com.example.meme.model.ImageStyle.CHIBI);
     }
     
     public ImageGenerateResult generateEmotionImage(String imageBase64, EmotionType emotionType, com.example.meme.model.ImageStyle style) {
@@ -201,52 +215,87 @@ public class AiClient {
      * 使用指定模型尝试生成图片
      */
     private ImageGenerateResult tryGenerateWithModel(String model, String prompt, String description, EmotionType emotionType) throws Exception {
-        // 调用 DashScope ImageSynthesis API
-        ImageSynthesisParam param = ImageSynthesisParam.builder()
+        // 构建消息（新版 API 要求）
+        ImageGenerationMessage message = ImageGenerationMessage.builder()
+                .role("user")
+                .content(Collections.singletonList(
+                        Collections.singletonMap("text", prompt)
+                )).build();
+        
+        // 调用 DashScope ImageGeneration API（新版）
+        ImageGenerationParam param = ImageGenerationParam.builder()
                 .apiKey(apiKey)
                 .model(model)
-                .prompt(prompt)
                 .n(1)
-                .size(imageSize)  // 使用配置的尺寸，qwen-image 支持：1664*928, 1472*1140, 1328*1328, 1140*1472, 928*1664
+                .size(imageSize)  // 使用配置的尺寸
+                .messages(Collections.singletonList(message))
                 .build();
         
-        var result = imageSynthesis.call(param);
+        ImageGenerationResult result = imageGeneration.call(param);
         
-        if (result != null && result.getOutput() != null && result.getOutput().getResults() != null
-                && !result.getOutput().getResults().isEmpty()) {
-            // 获取生成的图片数据（可能是 Map 或对象）
-            var imageData = result.getOutput().getResults().get(0);
-            String imageUrl = null;
-            
-            // 尝试从 Map 中获取 URL
-            if (imageData instanceof java.util.Map) {
-                @SuppressWarnings("unchecked")
-                java.util.Map<String, Object> map = (java.util.Map<String, Object>) (java.util.Map<?, ?>) imageData;
-                Object urlObj = map.get("url");
-                Object b64Obj = map.get("b64_encoded");
+        // 新版 SDK API 结构：使用 JsonUtils 解析结果
+        if (result != null && result.getOutput() != null) {
+            try {
+                // 尝试从 Output 中获取图片 URL
+                String outputJson = com.alibaba.dashscope.utils.JsonUtils.toJson(result.getOutput());
+                log.info("图片生成结果: {}", outputJson);
                 
-                if (urlObj != null && !urlObj.toString().isEmpty()) {
-                    imageUrl = urlObj.toString();
-                } else if (b64Obj != null && !b64Obj.toString().isEmpty()) {
-                    imageUrl = "data:image/png;base64," + b64Obj.toString();
-                }
-            } else {
-                // 如果是对象，尝试反射获取
-                try {
-                    java.lang.reflect.Method getUrlMethod = imageData.getClass().getMethod("getUrl");
-                    Object urlObj = getUrlMethod.invoke(imageData);
-                    if (urlObj != null) {
-                        imageUrl = urlObj.toString();
+                // 解析 JSON 获取 URL
+                @SuppressWarnings("unchecked")
+                Map<String, Object> outputMap = objectMapper.readValue(outputJson, Map.class);
+                
+                String imageUrl = null;
+                
+                // 尝试多种可能的结构
+                
+                // 结构1: choices[0].message.content[0].image
+                if (outputMap.containsKey("choices")) {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> choices = (List<Map<String, Object>>) outputMap.get("choices");
+                    if (choices != null && !choices.isEmpty()) {
+                        Map<String, Object> choice = choices.get(0);
+                        if (choice.containsKey("message")) {
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> messageObj = (Map<String, Object>) choice.get("message");
+                            if (messageObj.containsKey("content")) {
+                                @SuppressWarnings("unchecked")
+                                List<Map<String, Object>> content = (List<Map<String, Object>>) messageObj.get("content");
+                                if (content != null && !content.isEmpty()) {
+                                    Map<String, Object> contentItem = content.get(0);
+                                    if (contentItem.containsKey("image")) {
+                                        imageUrl = contentItem.get("image").toString();
+                                    }
+                                }
+                            }
+                        }
                     }
-                } catch (Exception e) {
-                    // 忽略反射错误
                 }
-            }
-            
-            if (imageUrl != null) {
-                return new ImageGenerateResult(imageUrl, description, emotionType.getChineseName());
-            } else {
-                throw new Exception("模型 " + model + " 返回的图片数据为空");
+                
+                // 结构2: results[0].url (旧版兼容)
+                if (imageUrl == null && outputMap.containsKey("results")) {
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> results = (List<Map<String, Object>>) outputMap.get("results");
+                    if (results != null && !results.isEmpty()) {
+                        Map<String, Object> firstResult = results.get(0);
+                        if (firstResult.containsKey("url")) {
+                            imageUrl = firstResult.get("url").toString();
+                        }
+                    }
+                }
+                
+                // 结构3: 直接在 output 中
+                if (imageUrl == null && outputMap.containsKey("url")) {
+                    imageUrl = outputMap.get("url").toString();
+                }
+                
+                if (imageUrl != null && !imageUrl.isEmpty()) {
+                    return new ImageGenerateResult(imageUrl, description, emotionType.getChineseName());
+                } else {
+                    throw new Exception("模型 " + model + " 返回的图片数据为空: " + outputJson);
+                }
+            } catch (Exception e) {
+                log.error("解析图片生成结果失败", e);
+                throw new Exception("模型 " + model + " 返回结果解析失败: " + e.getMessage());
             }
         } else {
             throw new Exception("模型 " + model + " 返回结果为空");
@@ -284,47 +333,67 @@ public class AiClient {
     }
     
     /**
-     * 构建图像生成提示词
+     * 构建图像生成提示词（只支持 CHIBI 风格）
      */
     private String buildImagePrompt(String originalDescription, EmotionType emotionType, com.example.meme.model.ImageStyle style) {
-        String styleDescription = getStyleDescription(style);
-        
-        if (style == com.example.meme.model.ImageStyle.ORIGINAL) {
-            // 原样风格：保持原图风格
-            return String.format(
-                "一个表情包风格的图片，基于以下描述：%s。要求：1. 表现出%s的情绪（%s）2. 表情夸张、生动 3. 适合作为表情包使用 4. 简洁的背景 5. 高质量、清晰的图像 6. 保持原图的风格特点",
-                originalDescription,
-                emotionType.getChineseName(),
-                emotionType.getDescription()
-            );
-        } else {
-            // 其他风格：应用指定风格
-            return String.format(
-                "一个表情包风格的图片，基于以下描述：%s。要求：1. 表现出%s的情绪（%s）2. 表情夸张、生动 3. 适合作为表情包使用 4. 简洁的背景 5. 高质量、清晰的图像 6. 必须使用%s风格：%s",
-                originalDescription,
-                emotionType.getChineseName(),
-                emotionType.getDescription(),
-                style.getName(),
-                styleDescription
-            );
-        }
+        // 只支持 CHIBI 风格
+        return buildChibiStylePrompt(originalDescription, emotionType);
     }
     
     /**
-     * 获取风格描述
+     * 构建 CHIBI 风格提示词，使用模板格式并替换占位符
      */
-    private String getStyleDescription(com.example.meme.model.ImageStyle style) {
-        switch (style) {
-            case CARTOON:
-                return "卡通风格，色彩鲜艳明快，线条简洁流畅，造型可爱夸张，适合轻松愉快的场景，类似迪士尼或日式动漫风格";
-            case PIXEL:
-                return "像素艺术风格，8-bit或16-bit复古游戏风格，低分辨率像素化效果，色彩有限但鲜明，具有强烈的复古游戏感";
-            case TOUGH:
-                return "硬汉风格，硬朗粗犷的线条，强烈的明暗对比，肌肉感强，适合表现力量感和男性化特征，类似美式漫画或硬派插画风格";
-            case REALISTIC:
-                return "写实主义风格，细节丰富逼真，真实感强，接近照片效果，光影自然，质感真实";
+    private String buildChibiStylePrompt(String originalDescription, EmotionType emotionType) {
+        // 使用 AI 返回的英文描述（已经是英文，AI已限制在200字符以内）
+        String characterDesc = originalDescription != null && !originalDescription.isEmpty() 
+            ? originalDescription 
+            : "anime character";
+        
+        // 根据情绪类型生成表情描述
+        String expressionDesc = getExpressionDescription(emotionType);
+        
+        // 使用模板格式构建完整提示词（强化不要背景、不要全身）
+        return String.format(
+            "Cute anime-style chibi emoji character. " +
+            "Big head, tiny upper body (head ~80%%). " +
+            "Only head, neck, shoulders, small upper torso visible. " +
+            "Bust-up emoji portrait ONLY. " +
+            "Character: %s. " +
+            "Expression: %s. " +
+            "Exaggerated, suitable for emoji. " +
+            "Japanese chibi style, clean lines, soft shading, pastel colors. " +
+            "High quality, transparent pure white background. " +
+            "Negative: full body, legs, lower body, background scene, realistic, 3D, complex background.",
+            characterDesc,
+            expressionDesc
+        );
+    }
+    
+    /**
+     * 根据情绪类型生成表情描述（包含面部表情、头部姿势、手部动作）
+     */
+    private String getExpressionDescription(EmotionType emotionType) {
+        switch (emotionType) {
+            case HAPPY:
+                return "Happy smile, curved eyes, closed mouth. Head upright. Hands forming V-sign near face";
+            case SAD:
+                return "Big teary eyes, downturned brows, trembling mouth, tears. Head slightly down. Hands wiping tears";
+            case ANGRY:
+                return "Puffed cheeks, furrowed brows, pouting mouth. Head tilted forward. Fists clenched near cheeks";
+            case SURPRISED:
+                return "Wide eyes, open O-mouth, raised brows. Head slightly back. Hands on cheeks";
+            case CONFUSED:
+                return "Tilted head, squinting eye, puzzled look. Head tilted to side. Hand near chin, thinking pose";
+            case EXCITED:
+                return "Sparkling eyes with stars, wide smile. Head upright. Hands raised in cheer";
+            case CALM:
+                return "Peaceful eyes, serene smile, relaxed. Head upright. Hands in relaxed pose";
+            case SHY:
+                return "Blushing cheeks, looking away, shy smile. Head turned slightly. Hands covering mouth";
+            case PLAYFUL:
+                return "Winking eye, tongue out, cheeky smile. Head tilted playfully. Peace sign or pointing finger";
             default:
-                return "";
+                return "Happy smile, curved eyes, closed mouth. Head upright. Hands forming V-sign near face";
         }
     }
     
