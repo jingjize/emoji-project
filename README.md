@@ -22,6 +22,7 @@
 - **Maven**
 - **Java Graphics2D**（图片处理）
 - **阿里云百炼 DashScope**（AI 图片生成）
+- **SiliconFlow**（AI 图片生成，可选）
 - **Pixabay API**（免费图片库，支持中文搜索）
 
 ## 快速开始
@@ -34,7 +35,27 @@
 
 ### 2. 配置 API Key 和模型
 
-编辑 `src/main/resources/application.yml`，配置你的 DashScope API Key：
+#### 2.1 SiliconFlow 配置（推荐，优先使用）
+
+编辑 `src/main/resources/application.yml`，配置你的 SiliconFlow API Key：
+
+```yaml
+siliconflow:
+  # SiliconFlow API Key（如果配置了会优先使用）
+  # 获取 API Key: https://cloud.siliconflow.cn/
+  api-key: YOUR_SILICONFLOW_API_KEY
+  model: Kwai-Kolors/Kolors
+  image-size: 1024x1024
+```
+
+**SiliconFlow 优势**：
+- ✅ 支持 Kolors 模型，图像质量高
+- ✅ API 调用简单、稳定
+- ✅ 价格优惠
+
+#### 2.2 DashScope 配置（备用）
+
+如果未配置 SiliconFlow，系统会自动使用 DashScope：
 
 ```yaml
 spring:
@@ -43,24 +64,17 @@ spring:
       api-key: YOUR_API_KEY  # 替换为你的 DashScope API Key
       image:
         options:
-          # 支持多个模型，按优先级顺序尝试，当某个模型额度不足或失败时自动切换到下一个
-          models: qwen-image-plus,qwen-image-max,qwen-image-max-2025-12-30
-          size: 1328*1328
-
-# 图库配置（仅使用Pixabay，支持中文搜索）
-gallery:
-  pixabay:
-    # Pixabay API Key（必需，免费注册即可获得，支持中文搜索）
-    # 获取API Key: https://pixabay.com/api/docs/
-    # 注册地址: https://pixabay.com/accounts/register/
-    api-key: YOUR_PIXABAY_API_KEY
+          # 支持多个模型，按优先级顺序尝试
+          models: wanx-v1,flux-schnell,flux-dev,qwen-vl-max
+          model: wanx-v1
+          size: 1280*1280
 ```
 
 **多模型支持**：
 - 系统支持配置多个图片生成模型，按优先级顺序尝试
 - 当某个模型额度不足或调用失败时，会自动切换到下一个模型
 
-#### 2.2 配置图库 API Key（必需）
+#### 2.3 配置图库 API Key（必需）
 
 **Pixabay API（支持中文搜索，专为中国用户优化）**：
 1. 访问 https://pixabay.com/accounts/register/ 注册账号（免费）

@@ -1,9 +1,11 @@
 package com.example.meme.service;
 
 import com.example.meme.client.AiClient;
+import com.example.meme.client.SiliconFlowClient;
 import com.example.meme.model.EmotionType;
 import com.example.meme.model.ImageGenerateResult;
 import com.example.meme.model.ImageStyle;
+import com.example.meme.model.ImageUnderstandResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +23,7 @@ import java.util.Base64;
 /**
  * 图像生成服务
  * 负责调用 AI 生成情绪表情图片并保存
+ * 支持多个 AI 提供商：SiliconFlow（优先）、DashScope（备用）
  */
 @Slf4j
 @Service
@@ -28,6 +31,9 @@ public class ImageGenerateService {
     
     @Autowired
     private AiClient aiClient;
+    
+    @Autowired
+    private SiliconFlowClient siliconFlowClient;
     
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -45,6 +51,7 @@ public class ImageGenerateService {
     
     /**
      * 生成情绪表情图片（支持风格）
+     * 优先使用 SiliconFlow，如果未配置或失败则使用 DashScope
      * 
      * @param imageBytes 原始图片字节数组
      * @param emotionType 情绪类型
@@ -55,8 +62,32 @@ public class ImageGenerateService {
         // 将图片转换为 Base64
         String imageBase64 = Base64.getEncoder().encodeToString(imageBytes);
         
-        // 调用 AI 生成表情图片
-        ImageGenerateResult result = aiClient.generateEmotionImage(imageBase64, emotionType, style);
+        ImageGenerateResult result = null;
+        
+        // 优先尝试 SiliconFlow
+        if (siliconFlowClient.isConfigured()) {
+            try {
+                log.info("使用 SiliconFlow 生成图片");
+                
+                // 先理解原图内容
+                ImageUnderstandResult understandResult = aiClient.understandImage(imageBase64);
+                String description = understandResult.getDescription();
+                
+                // 构建图像生成提示词
+                String prompt = aiClient.buildImagePrompt(description, emotionType, style);
+                
+                result = siliconFlowClient.generateImage(prompt, emotionType);
+                log.info("SiliconFlow 生成成功");
+            } catch (Exception e) {
+                log.warn("SiliconFlow 生成失败，尝试使用 DashScope: {}", e.getMessage());
+            }
+        }
+        
+        // 如果 SiliconFlow 未配置或失败，使用 DashScope
+        if (result == null) {
+            log.info("使用 DashScope 生成图片");
+            result = aiClient.generateEmotionImage(imageBase64, emotionType, style);
+        }
         
         String imageData = result.getImageUrl();
         if (imageData == null || imageData.isEmpty()) {

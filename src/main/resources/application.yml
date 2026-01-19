@@ -24,10 +24,21 @@ spring:
       image:
         options:
           # 支持多个模型，按优先级顺序尝试，当某个模型额度不足或失败时自动切换到下一个
-          models: wan2.6-t2i,flux-1.1-pro,wanx-v1,qwen-image-plus,qwen-image-max
+          models: wanx-v1,flux-schnell,flux-dev,qwen-vl-max
           # 默认模型（兼容旧配置）
-          model: wan2.6-t2i
+          model: wanx-v1
           size: 1280*1280  # 支持的尺寸：1024*1024, 720*1280, 1280*720, 1280*1280
+
+# SiliconFlow AI 配置（可选）
+siliconflow:
+  # SiliconFlow API Key（如果配置了会优先使用）
+  # 获取 API Key: https://cloud.siliconflow.cn/
+  api-key: sk-uojvhrmzcixbymjtisfmzomzpinlwivlwlguznqpscurjjgy
+  api-url: https://api.siliconflow.cn/v1/images/generations
+  # 推荐模型：Kwai-Kolors/Kolors
+  model: Kwai-Kolors/Kolors
+  # 图片尺寸，支持: 1024x1024, 960x1280, 768x1024, 720x1440, 720x1280
+  image-size: 1024x1024
 
 # 文件存储配置
 file:

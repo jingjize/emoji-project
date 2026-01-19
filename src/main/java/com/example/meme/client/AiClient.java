@@ -337,8 +337,9 @@ public class AiClient {
     
     /**
      * 构建图像生成提示词（只支持 CHIBI 风格）
+     * public 方法，供 SiliconFlowClient 调用
      */
-    private String buildImagePrompt(String originalDescription, EmotionType emotionType, com.example.meme.model.ImageStyle style) {
+    public String buildImagePrompt(String originalDescription, EmotionType emotionType, com.example.meme.model.ImageStyle style) {
         // 只支持 CHIBI 风格
         return buildChibiStylePrompt(originalDescription, emotionType);
     }
