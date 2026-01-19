@@ -91,7 +91,9 @@ public class AiClient {
             // 调用多模态对话 API
             MultiModalConversationParam param = MultiModalConversationParam.builder()
                     .apiKey(apiKey)
-                    .model(chatModel)  // 使用配置的模型，如 qwen-vl-plus
+                    .model(chatModel)  // 使用配置的模型,如 qwen-vl-plus
+                    .temperature(0.1f)  // 降低温度值保持输出稳定
+                    .seed(1)  // 固定seed保持描述稳定
                     .messages(Arrays.asList(userMessage))
                     .build();
             
@@ -222,12 +224,13 @@ public class AiClient {
                         Collections.singletonMap("text", prompt)
                 )).build();
         
-        // 调用 DashScope ImageGeneration API（新版）
+        // 调用 DashScope ImageGeneration API(新版)
         ImageGenerationParam param = ImageGenerationParam.builder()
                 .apiKey(apiKey)
                 .model(model)
                 .n(1)
                 .size(imageSize)  // 使用配置的尺寸
+                .seed(1)  // 固定seed保持生成结果稳定
                 .messages(Collections.singletonList(message))
                 .build();
         
