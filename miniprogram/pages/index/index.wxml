@@ -90,14 +90,12 @@
       </view>
       <view class="style-row">
         <text class="style-label">字体大小：</text>
-        <slider 
+        <input 
+          class="style-input" 
+          type="number" 
           value="{{fontSize}}" 
-          min="20" 
-          max="100" 
-          step="5"
-          show-value
-          bindchange="onFontSizeChange"
-          activeColor="#667eea"
+          bindinput="onFontSizeInput"
+          placeholder="100-200"
         />
       </view>
       <view class="style-row">
@@ -130,14 +128,12 @@
       </view>
       <view class="style-row">
         <text class="style-label">描边宽度：</text>
-        <slider 
+        <input 
+          class="style-input" 
+          type="number" 
           value="{{strokeWidth}}" 
-          min="1" 
-          max="10" 
-          step="1"
-          show-value
-          bindchange="onStrokeWidthChange"
-          activeColor="#667eea"
+          bindinput="onStrokeWidthInput"
+          placeholder="1-10"
         />
       </view>
     </view>

@@ -32,7 +32,7 @@ spring:
 # 文件存储配置
 file:
   upload-dir: output
-  base-url: http://localhost:8080
+  base-url: http://localhost:8443
 
 # 图库配置（仅使用Pixabay，支持中文搜索）
 gallery:

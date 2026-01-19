@@ -269,6 +269,19 @@
   color: #333;
 }
 
+/* 数值输入框（字体大小、描边宽度） */
+.style-input {
+  width: 120rpx;
+  padding: 20rpx 16rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  background: white;
+  font-size: 26rpx;
+  color: #333;
+  text-align: center;
+  flex-shrink: 0;
+}
+
 /* 风格按钮滚动容器 */
 .style-buttons-scroll {
   width: 100%;

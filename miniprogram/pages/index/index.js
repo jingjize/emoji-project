@@ -73,7 +73,7 @@ Page({
       { label: '中间', value: 'center' },
       { label: '底部', value: 'bottom' }
     ],
-    fontSize: 40,
+    fontSize: 100,
     textColorRgb: '255,255,255',
     strokeColorRgb: '0,0,0',
     strokeWidth: 3,
@@ -228,7 +228,17 @@ Page({
     });
   },
 
-  // 字体大小变化
+  // 字体大小输入
+  onFontSizeInput(e) {
+    const size = parseInt(e.detail.value);
+    if (!isNaN(size) && size >= 100 && size <= 200) {
+      this.setData({
+        fontSize: size
+      });
+    }
+  },
+
+  // 字体大小变化（保留兼容）
   onFontSizeChange(e) {
     this.setData({
       fontSize: e.detail.value
@@ -255,7 +265,17 @@ Page({
     }
   },
 
-  // 描边宽度变化
+  // 描边宽度输入
+  onStrokeWidthInput(e) {
+    const width = parseInt(e.detail.value);
+    if (!isNaN(width) && width >= 1 && width <= 10) {
+      this.setData({
+        strokeWidth: width
+      });
+    }
+  },
+
+  // 描边宽度变化（保留兼容）
   onStrokeWidthChange(e) {
     this.setData({
       strokeWidth: e.detail.value
@@ -834,7 +854,7 @@ Page({
       resultEmotion: '',
       textStyleExpanded: false,
       textPositionIndex: 1,
-      fontSize: 40,
+      fontSize: 100,
       textColorRgb: '255,255,255',
       strokeColorRgb: '0,0,0',
       strokeWidth: 3,

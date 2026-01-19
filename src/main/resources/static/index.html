@@ -345,11 +345,13 @@
         }
 
         .style-input {
-            flex: 1;
+            width: 100px;
             padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 13px;
+            text-align: center;
+            flex-shrink: 0;
         }
 
         .style-select {
@@ -950,16 +952,6 @@
                 </div>
             </div>
 
-            <div class="emotion-selector" id="styleSelector">
-                <div class="emotion-label">选择风格：</div>
-                <div class="emotion-buttons">
-                    <button class="emotion-btn active" data-style="standard">😊 标准可爱</button>
-                    <button class="emotion-btn" data-style="cartoon">🎉 Q版卡通</button>
-                    <button class="emotion-btn" data-style="minimal">✨ 简约风</button>
-                    <button class="emotion-btn" data-style="watercolor">🎨 水彩风</button>
-                </div>
-            </div>
-
             <div class="text-input-area">
                 <div class="text-input-label">自定义文字（可选）：</div>
                 <input 
@@ -988,7 +980,7 @@
                     </div>
                     <div class="style-row">
                         <label class="style-label">字体大小：</label>
-                        <input type="number" id="fontSize" class="style-input" value="40" min="20" max="100">
+                        <input type="number" id="fontSize" class="style-input" value="100" min="100" max="200" placeholder="100-200">
                     </div>
                     <div class="style-row">
                         <label class="style-label">文字颜色：</label>
@@ -1392,16 +1384,6 @@
             });
         });
 
-        // 风格选择按钮事件
-        let selectedStyle = 'standard'; // 默认标准可爱风
-        document.querySelectorAll('#styleSelector .emotion-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('#styleSelector .emotion-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                selectedStyle = btn.getAttribute('data-style');
-            });
-        });
-
         // 颜色选择器事件
         document.getElementById('textColor').addEventListener('change', (e) => {
             const color = e.target.value;
@@ -1450,7 +1432,6 @@
             // 创建 FormData（统一处理上传图片和图库图片）
             const formData = new FormData();
             formData.append('emotion', selectedEmotion);
-            formData.append('style', selectedStyle); // 添加风格参数
             
             // 如果输入了自定义文字，添加到请求中
             const customText = customTextInput.value.trim();

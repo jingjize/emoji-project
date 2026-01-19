@@ -99,8 +99,8 @@ public class ImageComposeService {
         // 保存文件（PNG 格式支持透明度）
         ImageIO.write(newImage, "png", outputPath.toFile());
         
-        // 返回访问 URL
-        return "/output/" + fileName;
+        // 返回访问 URL（使用完整URL以支持小程序访问）
+        return baseUrl + "/output/" + fileName;
     }
     
     /**
