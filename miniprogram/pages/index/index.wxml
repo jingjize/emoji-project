@@ -32,6 +32,9 @@
 
   <!-- 上传图片标签页 -->
   <view class="tab-content" wx:if="{{currentTab === 'upload'}}">
+    <!-- 提示信息 -->
+    <view class="upload-tip">💡 提示：请优先选择上传人物图片，效果更佳</view>
+    
     <!-- 上传区域 -->
     <view class="upload-area" bindtap="chooseImage">
     <image wx:if="{{previewImage}}" src="{{previewImage}}" class="preview-image" mode="aspectFit"></image>

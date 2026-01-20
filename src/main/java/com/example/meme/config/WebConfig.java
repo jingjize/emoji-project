@@ -26,16 +26,22 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 获取项目根目录
         String projectRoot = System.getProperty("user.dir");
-        Path outputPath = Paths.get(projectRoot, "output").toAbsolutePath();
-        String outputDir = outputPath.toString().replace("\\", "/");
         
         // 映射 /output/** 到项目根目录的 output 文件夹
-        // Windows 路径需要转换为 file:/// 格式
-        String fileUrl = "file:///" + outputDir.replace(":", ":/") + "/";
+        Path outputPath = Paths.get(projectRoot, "output").toAbsolutePath();
+        String outputDir = outputPath.toString().replace("\\", "/");
+        String outputFileUrl = "file:///" + outputDir.replace(":", ":/") + "/";
         registry.addResourceHandler("/output/**")
-                .addResourceLocations(fileUrl);
+                .addResourceLocations(outputFileUrl);
+        log.info("静态资源映射: /output/** -> {}", outputFileUrl);
         
-        log.info("静态资源映射: /output/** -> {}", fileUrl);
+        // 映射 /project-gallery/** 到项目根目录的 project-gallery 文件夹（与 output 同级）
+        Path projectGalleryPath = Paths.get(projectRoot, "project-gallery").toAbsolutePath();
+        String projectGalleryDir = projectGalleryPath.toString().replace("\\", "/");
+        String projectGalleryFileUrl = "file:///" + projectGalleryDir.replace(":", ":/") + "/";
+        registry.addResourceHandler("/project-gallery/**")
+                .addResourceLocations(projectGalleryFileUrl);
+        log.info("静态资源映射: /project-gallery/** -> {}", projectGalleryFileUrl);
     }
     
     @Override

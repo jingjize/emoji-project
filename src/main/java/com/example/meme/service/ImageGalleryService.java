@@ -12,7 +12,13 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.stream.Collectors;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * 图库服务
@@ -27,9 +33,15 @@ public class ImageGalleryService {
     
     @Value("${gallery.pixabay.api-key:}")
     private String pixabayApiKey;
+
+    @Value("${file.upload-dir:output}")
+    private String uploadDir;
     
     // Pixabay API 基础URL
     private static final String PIXABAY_API_BASE = "https://pixabay.com/api";
+
+    // 项目内置图库（把图片放到项目根目录的 project-gallery/ 下，与 output/ 同级）
+    private static final String PROJECT_GALLERY_DIR = "project-gallery";
     
     public ImageGalleryService() {
         // 配置 WebClient 以支持大文件下载（增加缓冲区大小到 10MB）
@@ -43,6 +55,76 @@ public class ImageGalleryService {
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024))
                 .build();
         this.objectMapper = new ObjectMapper();
+    }
+
+    /**
+     * 获取项目内置图片（用于“项目图片”标签）
+     *
+     * @param baseUrl 形如 http(s)://host[:port]
+     * @param page 页码（从1开始）
+     * @param perPage 每页数量
+     */
+    public List<GalleryImage> getProjectImages(String baseUrl, Integer page, Integer perPage) {
+        if (page == null || page < 1) {
+            page = 1;
+        }
+        if (perPage == null || perPage < 1) {
+            perPage = 15;
+        }
+
+        String normalizedBaseUrl = baseUrl == null ? "" : baseUrl.trim();
+        if (normalizedBaseUrl.endsWith("/")) {
+            normalizedBaseUrl = normalizedBaseUrl.substring(0, normalizedBaseUrl.length() - 1);
+        }
+
+        try {
+            // 项目根目录下的 project-gallery 目录（与 output/ 同级）
+            String projectRoot = System.getProperty("user.dir");
+            Path localGalleryDir = Paths.get(projectRoot, PROJECT_GALLERY_DIR);
+
+            if (!Files.exists(localGalleryDir) || !Files.isDirectory(localGalleryDir)) {
+                return new ArrayList<>();
+            }
+
+            // 过滤图片文件 + 排序
+            List<Path> imageFiles = Files.list(localGalleryDir)
+                    .filter(Files::isRegularFile)
+                    .filter(p -> {
+                        String name = p.getFileName().toString();
+                        String lower = name.toLowerCase(Locale.ROOT);
+                        return lower.endsWith(".png") || lower.endsWith(".jpg") || lower.endsWith(".jpeg")
+                                || lower.endsWith(".webp") || lower.endsWith(".gif");
+                    })
+                    .sorted(Comparator.comparing(p -> p.getFileName().toString()))
+                    .collect(Collectors.toList());
+
+            int start = (page - 1) * perPage;
+            if (start >= imageFiles.size()) {
+                return new ArrayList<>();
+            }
+            int end = Math.min(start + perPage, imageFiles.size());
+            List<Path> pageFiles = imageFiles.subList(start, end);
+
+            List<GalleryImage> result = new ArrayList<>();
+            for (Path p : pageFiles) {
+                String filename = p.getFileName().toString();
+                String url = normalizedBaseUrl + "/project-gallery/" + filename;
+                result.add(new GalleryImage(
+                        filename,
+                        url,
+                        url,
+                        url,
+                        0,
+                        0,
+                        "项目内置",
+                        "Project"
+                ));
+            }
+            return result;
+        } catch (Exception e) {
+            log.error("读取项目内置图库失败: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
     }
     
     /**
@@ -248,6 +330,10 @@ public class ImageGalleryService {
         java.util.Map<String, String> categoryMap = new java.util.HashMap<>();
         // 靓女分类（放在最前面）
         categoryMap.put("beauty", "美女");
+        // 俊男分类
+        categoryMap.put("handsome", "帅哥");
+        // 萌物分类（使用可爱相关的关键词）
+        categoryMap.put("adorable", "萌物");
         // 动漫卡通类（迎合年轻人，使用更精准的关键词以获得平面风格）
         categoryMap.put("anime", "anime illustration flat style"); // 使用英文关键词组合，更精准匹配平面动漫风格
         categoryMap.put("cartoon", "cartoon illustration flat design"); // 平面卡通插画

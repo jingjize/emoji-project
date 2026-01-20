@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -303,7 +304,15 @@ public class MemeController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            List<GalleryImage> images = imageGalleryService.getCategoryImages(category, page);
+            List<GalleryImage> images;
+
+            // “项目图片”标签：返回项目内置图片（放在 src/main/resources/static/project-gallery/）
+            if ("local".equalsIgnoreCase(category) || "project".equalsIgnoreCase(category)) {
+                String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+                images = imageGalleryService.getProjectImages(baseUrl, page, 15);
+            } else {
+                images = imageGalleryService.getCategoryImages(category, page);
+            }
             
             response.put("success", true);
             response.put("images", images);

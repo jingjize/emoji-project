@@ -52,8 +52,10 @@ Page({
       { code: '生活', name: '生活', hidden: true }
     ],
     galleryCategories: [
-      { code: '', name: '全部' },
+      { code: 'local', name: '😊' },
       { code: 'beauty', name: '靓女' },
+      { code: 'handsome', name: '俊男' },
+      { code: 'adorable', name: '萌物' },
       { code: 'anime', name: '动漫' },
       { code: 'cartoon', name: '卡通' },
       { code: 'kawaii', name: '二次元' },
@@ -128,28 +130,6 @@ Page({
   getEmotionChineseName(englishName) {
     const emotion = this.data.emotions.find(e => e.englishName === englishName);
     return emotion ? emotion.chineseName : '表情';
-  },
-
-  // 加载热门词语
-  loadHotSlangs() {
-    wx.request({
-      url: `${app.globalData.apiBaseUrl}/slang/hot-words`,
-      method: 'GET',
-      success: (res) => {
-        if (res.data.success && res.data.hotSlangs && res.data.hotSlangs.length > 0) {
-          this.setData({
-            slangExamples: res.data.hotSlangs
-          });
-        }
-      },
-      fail: (err) => {
-        console.error('加载热门词语失败:', err);
-        // 使用默认词语
-        this.setData({
-          slangExamples: ['yyds', '破防', '内卷', '社死', 'emo', '摆烂', '躺平', '打工人']
-        });
-      }
-    });
   },
 
   // 选择图片
@@ -556,9 +536,13 @@ Page({
   },
 
   // 加载热门词语
-  loadHotSlangs() {
+  loadHotSlangs(industry = this.data.selectedIndustry) {
+    let url = `${app.globalData.apiBaseUrl}/slang/hot-words`;
+    if (industry) {
+      url += `?industry=${encodeURIComponent(industry)}`;
+    }
     wx.request({
-      url: `${app.globalData.apiBaseUrl}/slang/hot-words`,
+      url,
       method: 'GET',
       success: (res) => {
         if (res.data.success && res.data.hotSlangs) {
@@ -591,7 +575,7 @@ Page({
       selectedIndustry: industry
     });
     // 重新加载热门词语
-    this.loadHotSlangs();
+    this.loadHotSlangs(industry);
   },
 
   // 选择热门词语示例

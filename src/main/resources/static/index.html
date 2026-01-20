@@ -83,6 +83,14 @@
             font-size: 12px;
         }
 
+        .upload-tip {
+            color: #ff4444;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
         #fileInput {
             display: none;
         }
@@ -926,6 +934,7 @@
 
         <!-- 上传图片标签页 -->
         <div class="tab-content active" id="uploadTab">
+            <div class="upload-tip">💡 提示：请优先选择上传人物图片，效果更佳</div>
             <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📸</div>
             <div class="upload-text">点击或拖拽图片到这里</div>
@@ -1017,8 +1026,10 @@
                     <button class="search-btn" id="gallerySearchBtn">搜索</button>
                 </div>
                 <div class="category-buttons">
-                    <button class="category-btn active" data-category="">全部</button>
+                    <button class="category-btn active" data-category="local">😊</button>
                     <button class="category-btn" data-category="beauty">靓女</button>
+                    <button class="category-btn" data-category="handsome">俊男</button>
+                    <button class="category-btn" data-category="adorable">萌物</button>
                     <button class="category-btn" data-category="anime">动漫</button>
                     <button class="category-btn" data-category="cartoon">卡通</button>
                     <button class="category-btn" data-category="kawaii">二次元</button>
@@ -1195,7 +1206,7 @@
             currentGalleryCategory = '';
             currentGalleryPage = 1;
             document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector('.category-btn[data-category=""]').classList.add('active');
+            document.querySelector('.category-btn[data-category="local"]').classList.add('active');
             loadGalleryImages(query, 1, '');
         });
 

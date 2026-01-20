@@ -24,9 +24,9 @@ spring:
       image:
         options:
           # 支持多个模型，按优先级顺序尝试，当某个模型额度不足或失败时自动切换到下一个
-          models: wanx-v1,flux-schnell,flux-dev,qwen-vl-max
+          models: qwen-image-plus,qwen-image-max
           # 默认模型（兼容旧配置）
-          model: wanx-v1
+          model: qwen-image-plus
           size: 1280*1280  # 支持的尺寸：1024*1024, 720*1280, 1280*720, 1280*1280
 
 # SiliconFlow AI 配置（可选）
