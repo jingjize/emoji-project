@@ -32,6 +32,7 @@ buildNumber.properties
 
 # 生成的文件
 output/
+project-gallery/
 *.jpg
 *.png
 *.gif
