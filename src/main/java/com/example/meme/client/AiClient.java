@@ -56,6 +56,56 @@ public class AiClient {
     }
     
     /**
+     * 判断图片主体是否为人物
+     * 
+     * @param imageBase64 图片的 Base64 编码
+     * @return true 表示是人物，false 表示非人物
+     */
+    private boolean isHumanImage(String imageBase64) {
+        try {
+            String promptText = "请判断这张图片的主体是否为人物。\n" +
+                    "只返回JSON格式: {\"is_human\": true} 或 {\"is_human\": false}";
+            
+            MultiModalMessage userMessage = MultiModalMessage.builder()
+                    .role(Role.USER.getValue())
+                    .content(Arrays.asList(
+                            Collections.singletonMap("image", "data:image/jpeg;base64," + imageBase64),
+                            Collections.singletonMap("text", promptText)
+                    ))
+                    .build();
+            
+            MultiModalConversationParam param = MultiModalConversationParam.builder()
+                    .apiKey(apiKey)
+                    .model(chatModel)
+                    .temperature(0.1f)
+                    .seed(1)
+                    .messages(Arrays.asList(userMessage))
+                    .build();
+            
+            MultiModalConversationResult result = multiModalConversation.call(param);
+            
+            if (result != null && result.getOutput() != null && result.getOutput().getChoices() != null
+                    && !result.getOutput().getChoices().isEmpty()) {
+                List<Map<String, Object>> content = result.getOutput().getChoices().get(0).getMessage().getContent();
+                if (content != null && !content.isEmpty()) {
+                    for (Map<String, Object> item : content) {
+                        if (item.containsKey("text")) {
+                            String textContent = item.get("text").toString().toLowerCase();
+                            // 如果包含 false 或 animal 等非人物关键词，则返回 false
+                            if (textContent.contains("false") || textContent.contains("animal")) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("判断图片类型失败，默认为人物: {}", e.getMessage());
+        }
+        return true; // 默认为人物
+    }
+    
+    /**
      * 理解图片内容并生成描述
      * 使用多模态对话 API 支持图片理解
      * 
@@ -64,20 +114,31 @@ public class AiClient {
      */
     public ImageUnderstandResult understandImage(String imageBase64) {
         try {
-            // 构建提示词（中文描述，限制400字符，参考特定格式）
-            String promptText = "请用中文描述这张图片，参考以下格式示例：" +
-                    "'年轻动漫女性。黑色长发。大大的蓝色眼睛，脸颊泛红。" +
-                    "相同的脸型、发型、发色、眼色。可见的上半身保持原装服饰：" +
-                    "黑色 T 恤，上面有两个黄色笑脸和粉色装饰。简化版、易于识别，没有新服饰。'" +
-                    "\n\n重点描述：" +
-                    "1. 角色基本信息（年龄、性别、动漫风格）" +
-                    "2. 头发（样式、颜色、任何渐变或高光）" +
-                    "3. 眼睛（颜色、特征）" +
-                    "4. 表情/情绪（脸红、微笑等）" +
-                    "5. 仅上半身服装（类型、颜色、图案）" +
-                    "\n不要描述：背景、全身、手臂、手、腿、下半身。" +
-                    "\n重要：总字数限制在200字以内。使用简短句子。" +
-                    "\n返回JSON格式: {\"description\": \"中文描述(最多200字)\", \"text\": \"简短总结\"}";
+            // 先判断图片是否为人物
+            boolean isHuman = isHumanImage(imageBase64);
+            log.info("检测到图片类型: {}", isHuman ? "人物" : "非人物");
+            
+            // 根据类型选择不同的提示词
+            String promptText;
+            if (isHuman) {
+                // 人物图片的提示词（保持原有的详细提示词）
+                promptText = "请用中文描述这张图片，参考以下格式示例：" +
+                        "'年轻动漫女性。黑色长发。大大的蓝色眼睛，脸颊泛红。" +
+                        "相同的脸型、发型、发色、眼色。可见的上半身保持原装服饰：" +
+                        "黑色 T 恤，上面有两个黄色笑脸和粉色装饰。简化版、易于识别，没有新服饰。'" +
+                        "\n\n重点描述：" +
+                        "1. 角色基本信息（年龄、性别、动漫风格）" +
+                        "2. 头发（样式、颜色、任何渐变或高光）" +
+                        "3. 眼睛（颜色、特征）" +
+                        "4. 表情/情绪（脸红、微笑等）" +
+                        "5. 仅上半身服装（类型、颜色、图案）" +
+                        "\n不要描述：背景、全身、手臂、手、腿、下半身。" +
+                        "\n重要：总字数限制在200字以内。使用简短句子。" +
+                        "\n返回JSON格式: {\"description\": \"中文描述(最多200字)\", \"text\": \"简短总结\"}";
+            } else {
+                // 非人物图片的提示词（简洁版）
+                promptText = "请仔细观察这张图片，理解图片的内容和情绪。请以 JSON 格式返回，格式：{\"description\": \"图片描述\", \"text\": \"简短描述\"}";
+            }
             
             // 构建多模态消息（图片 + 文本）
             MultiModalMessage userMessage = MultiModalMessage.builder()
