@@ -64,20 +64,20 @@ public class AiClient {
      */
     public ImageUnderstandResult understandImage(String imageBase64) {
         try {
-            // 构建提示词（直接要求英文描述，限制400字符，参考特定格式）
-            String promptText = "Describe this image in English following this format example: " +
-                    "'Young anime female. Long black hair with pink gradient. Large blue eyes, blush. " +
-                    "Same face, hairstyle, hair color, eye color. Visible upper body keeps original outfit: " +
-                    "black T-shirt with smiley faces. Simplified, recognizable, no new outfit.' " +
-                    "\n\nFocus on: " +
-                    "1. Character basic info (age, gender, anime style) " +
-                    "2. Hair (style, color, any gradients or highlights) " +
-                    "3. Eyes (color, features) " +
-                    "4. Expression/emotion (blush, smile, etc.) " +
-                    "5. Upper body clothing ONLY (type, color, patterns) " +
-                    "\nDO NOT describe: background, full body, arms, hands, legs, lower body. " +
-                    "IMPORTANT: Total under 400 characters. Use short sentences. " +
-                    "Return JSON: {\"description\": \"English description (max 400 chars)\", \"text\": \"Short summary\"}";
+            // 构建提示词（中文描述，限制400字符，参考特定格式）
+            String promptText = "请用中文描述这张图片，参考以下格式示例：" +
+                    "'年轻动漫女性。黑色长发，发尾有粉色和黄色的渐变色。大大的蓝色眼睛，脸颊泛红。" +
+                    "相同的脸型、发型、发色、眼色。可见的上半身保持原装服饰：" +
+                    "黑色 T 恤，上面有两个黄色笑脸和粉色装饰。简化版、易于识别，没有新服饰。'" +
+                    "\n\n重点描述：" +
+                    "1. 角色基本信息（年龄、性别、动漫风格）" +
+                    "2. 头发（样式、颜色、任何渐变或高光）" +
+                    "3. 眼睛（颜色、特征）" +
+                    "4. 表情/情绪（脸红、微笑等）" +
+                    "5. 仅上半身服装（类型、颜色、图案）" +
+                    "\n不要描述：背景、全身、手臂、手、腿、下半身。" +
+                    "\n重要：总字数限制在200字以内。使用简短句子。" +
+                    "\n返回JSON格式: {\"description\": \"中文描述(最多200字)\", \"text\": \"简短总结\"}";
             
             // 构建多模态消息（图片 + 文本）
             MultiModalMessage userMessage = MultiModalMessage.builder()
@@ -348,26 +348,40 @@ public class AiClient {
      * 构建 CHIBI 风格提示词，使用模板格式并替换占位符
      */
     private String buildChibiStylePrompt(String originalDescription, EmotionType emotionType) {
-        // 使用 AI 返回的英文描述（已经是英文，AI已限制在200字符以内）
+        // 使用 AI 返回的英文描述
         String characterDesc = originalDescription != null && !originalDescription.isEmpty() 
             ? originalDescription 
-            : "anime character";
+            : "动漫角色";
         
         // 根据情绪类型生成表情描述
         String expressionDesc = getExpressionDescription(emotionType);
         
-        // 使用模板格式构建完整提示词（强化不要背景、不要全身）
+        // 使用模板格式构建完整提示词（中文版本）
+//        return String.format(
+//                "Cute anime-style chibi emoji character. " +
+//                        "Big head, tiny upper body (head ~80%%). " +
+//                        "Only head, neck, shoulders, small upper torso visible. " +
+//                        "Bust-up emoji portrait ONLY. " +
+//                        "Character: %s. " +
+//                        "Expression: %s. " +
+//                        "Exaggerated, suitable for emoji. " +
+//                        "Japanese chibi style, clean lines, soft shading, pastel colors. " +
+//                        "High quality, transparent pure white background. " +
+//                        "Negative: full body, legs, lower body, background scene, realistic, 3D, complex background.",
+//                characterDesc,
+//                expressionDesc
+//        );
         return String.format(
-            "Cute anime-style chibi emoji character. " +
-            "Big head, tiny upper body (head ~80%%). " +
-            "Only head, neck, shoulders, small upper torso visible. " +
-            "Bust-up emoji portrait ONLY. " +
-            "Character: %s. " +
-            "Expression: %s. " +
-            "Exaggerated, suitable for emoji. " +
-            "Japanese chibi style, clean lines, soft shading, pastel colors. " +
-            "High quality, transparent pure white background. " +
-            "Negative: full body, legs, lower body, background scene, realistic, 3D, complex background.",
+            "白色背景。可爱的动漫风格chibi表情符号角色。" +
+            "画风：现代动漫chibi风格，干净清晰的线条，粗轮廓，鲜艳的平面色彩，非渐变，非柔和风格。" +
+            "头部超大且圆润，上半身很小（头部占 80%%以上）。" +
+            "仅能看到头部、颈部、肩膀、小上身部分，胸部以上半身像。" +
+            "没有腿、没有下半身。" +
+            "大眼睛设计，眼睛有白色高光，表情夸张生动。" +
+            "简洁的服装设计。" +
+            "角色：%s。" +
+            "表情：%s。" +
+            "夸张处理，适合表情符号，风格统一，色彩鲜明。",
             characterDesc,
             expressionDesc
         );
@@ -379,25 +393,25 @@ public class AiClient {
     private String getExpressionDescription(EmotionType emotionType) {
         switch (emotionType) {
             case HAPPY:
-                return "Happy smile, curved eyes, closed mouth. Head upright. Hands forming V-sign near face";
+                return "快乐微笑，弯弯的眼睛，闭着嘴。头部直立。手在脸边比V字";
             case SAD:
-                return "Big teary eyes, downturned brows, trembling mouth, tears. Head slightly down. Hands wiping tears";
+                return "大滴泪水的眼睛，下垂的眉毛，颇抖的嘴巴，泪水。头稍微低下。手擦眼泪";
             case ANGRY:
-                return "Puffed cheeks, furrowed brows, pouting mouth. Head tilted forward. Fists clenched near cheeks";
+                return "鼓起的脸颊，皱眉，嘴巴噌着。头向前倾斜。双手在脸颊边握拳";
             case SURPRISED:
-                return "Wide eyes, open O-mouth, raised brows. Head slightly back. Hands on cheeks";
+                return "睁大的眼睛，张开的O型嘴，扬起的眉毛。头稍微向后。双手托脸颊";
             case CONFUSED:
-                return "Tilted head, squinting eye, puzzled look. Head tilted to side. Hand near chin, thinking pose";
+                return "头偏斜，眨起的眼睛，困惑的表情。头向一侧倾斜。手靠近下巴，思考的姿势";
             case EXCITED:
-                return "Sparkling eyes with stars, wide smile. Head upright. Hands raised in cheer";
+                return "闪亮的星星眼，张大的微笑。头部直立。双手举起欢呼";
             case CALM:
-                return "Peaceful eyes, serene smile, relaxed. Head upright. Hands in relaxed pose";
+                return "平静的眼睛，宁静的微笑，放松。头部直立。手放松的姿势";
             case SHY:
-                return "Blushing cheeks, looking away, shy smile. Head turned slightly. Hands covering mouth";
+                return "脸红红的，看向别处，害羞的微笑。头稍微转开。手遮住嘴巴";
             case PLAYFUL:
-                return "Winking eye, tongue out, cheeky smile. Head tilted playfully. Peace sign or pointing finger";
+                return "眨眼，伸出舌头，顽皮的微笑。头俸皮地倾斜。比和平手势或指着";
             default:
-                return "Happy smile, curved eyes, closed mouth. Head upright. Hands forming V-sign near face";
+                return "快乐微笑，弯弯的眼睛，闭着嘴。头部直立。手在脸边比V字";
         }
     }
     

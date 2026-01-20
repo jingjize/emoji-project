@@ -152,7 +152,13 @@ public class MemeService {
             try {
                 java.net.URL url = new java.net.URL(imageUrl);
                 try (java.io.InputStream in = url.openStream()) {
-                    return in.readAllBytes();
+                    java.io.ByteArrayOutputStream buffer = new java.io.ByteArrayOutputStream();
+                    byte[] data = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = in.read(data, 0, data.length)) != -1) {
+                        buffer.write(data, 0, bytesRead);
+                    }
+                    return buffer.toByteArray();
                 }
             } catch (Exception e) {
                 throw new IOException("下载图片失败: " + e.getMessage(), e);

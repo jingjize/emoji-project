@@ -120,7 +120,7 @@ public class ImageGalleryService {
     private List<GalleryImage> searchWithLang(String query, String lang, Integer page, Integer perPage, String imageType) {
         try {
             // URL编码查询关键词
-            String encodedQuery = java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8);
+            String encodedQuery = java.net.URLEncoder.encode(query, "UTF-8");
             
             // 构建请求URL，参数顺序：key, q, image_type, page, per_page, lang, safesearch
             String url = String.format("%s/?key=%s&q=%s&image_type=%s&page=%d&per_page=%d&lang=%s&safesearch=true", 
@@ -278,7 +278,7 @@ public class ImageGalleryService {
         if (isAnimeCategory) {
             // 动漫卡通类：使用英文关键词 + illustration 类型，获得平面风格插画
             try {
-                String encodedQuery = java.net.URLEncoder.encode(query, java.nio.charset.StandardCharsets.UTF_8);
+                String encodedQuery = java.net.URLEncoder.encode(query, "UTF-8");
                 String url = String.format("%s/?key=%s&q=%s&image_type=illustration&page=%d&per_page=%d&lang=en&safesearch=true", 
                         PIXABAY_API_BASE,
                         pixabayApiKey,

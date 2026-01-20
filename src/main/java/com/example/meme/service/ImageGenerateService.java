@@ -76,8 +76,9 @@ public class ImageGenerateService {
                 // 构建图像生成提示词
                 String prompt = aiClient.buildImagePrompt(description, emotionType, style);
                 
-                result = siliconFlowClient.generateImage(prompt, emotionType);
-                log.info("SiliconFlow 生成成功");
+                // 使用上传的图片生成（传入图片字节数组）
+                result = siliconFlowClient.generateImageWithImageBytes(prompt, emotionType, imageBytes);
+                log.info("SiliconFlow 生成成功（已传入上传的图片）");
             } catch (Exception e) {
                 log.warn("SiliconFlow 生成失败，尝试使用 DashScope: {}", e.getMessage());
             }
