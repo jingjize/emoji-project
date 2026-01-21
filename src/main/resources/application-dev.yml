@@ -19,4 +19,4 @@ spring:
 # 文件存储配置
 file:
   upload-dir: output
-  base-url: https://ai-emoji.top:8443
+  base-url: http://localhost:8443

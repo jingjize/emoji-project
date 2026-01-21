@@ -6,6 +6,8 @@ server:
 spring:
   application:
     name: meme-generator
+  profiles:
+    active: dev
   servlet:
     multipart:
       max-file-size: 10MB
@@ -40,10 +42,6 @@ siliconflow:
   # 图片尺寸，支持: 1024x1024, 960x1280, 768x1024, 720x1440, 720x1280
   image-size: 1024x1024
 
-# 文件存储配置
-file:
-  upload-dir: output
-  base-url: http://localhost:8443
 
 # 图库配置（仅使用Pixabay，支持中文搜索）
 gallery:
