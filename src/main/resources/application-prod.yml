@@ -13,3 +13,7 @@ spring:
           model: qwen-image
           size: 1328*1328  # qwen-image 支持的尺寸：1664*928, 1472*1140, 1328*1328, 1140*1472, 928*1664
 
+# 文件存储配置
+file:
+  upload-dir: output
+  base-url: https://ai-emoji.top:8443
