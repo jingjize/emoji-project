@@ -38,7 +38,7 @@ EXPOSE 8443
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/meme/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8443/api/meme/health || exit 1
 
 # 启动应用
 # Spring Boot 会自动提供静态资源（前端页面）

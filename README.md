@@ -484,3 +484,5 @@ crontab -e
 
 MIT License
 
+nginx位置
+/www/server/nginx/conf
