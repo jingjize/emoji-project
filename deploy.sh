@@ -4,11 +4,16 @@
 # 表情包生成项目 - 自动化部署脚本
 # ============================================
 # 功能：
-#   1. 从 Git 仓库拉取最新代码
+#   1. 从 Git 仓库拉取最新代码（可选）
 #   2. 检查是否有更新
 #   3. 构建 Docker 镜像
 #   4. 重启容器
 #   5. 健康检查
+# ============================================
+# 使用方法：
+#   ./deploy.sh              # 拉取代码并部署
+#   ./deploy.sh --no-pull    # 不拉取代码，直接部署
+#   ./deploy.sh --skip-git   # 不拉取代码，直接部署（同 --no-pull）
 # ============================================
 
 set -e  # 遇到错误立即退出
@@ -24,6 +29,35 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="docker-compose.simple.yml"
 GIT_BRANCH="${GIT_BRANCH:-main}"  # 默认分支，可通过环境变量覆盖
 LOG_FILE="${PROJECT_DIR}/logs/deploy.log"
+
+# 参数解析
+PULL_CODE=true  # 默认拉取代码
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --no-pull|--skip-git)
+            PULL_CODE=false
+            shift
+            ;;
+        -h|--help)
+            echo "使用方法:"
+            echo "  $0 [选项]"
+            echo ""
+            echo "选项:"
+            echo "  --no-pull, --skip-git    不拉取代码，直接部署当前代码"
+            echo "  -h, --help               显示帮助信息"
+            echo ""
+            echo "示例:"
+            echo "  $0              # 拉取代码并部署"
+            echo "  $0 --no-pull    # 不拉取代码，直接部署"
+            exit 0
+            ;;
+        *)
+            log_error "未知参数: $1"
+            echo "使用 $0 --help 查看帮助"
+            exit 1
+            ;;
+    esac
+done
 
 # 创建日志目录
 mkdir -p "${PROJECT_DIR}/logs"
@@ -107,16 +141,18 @@ fi
 log_info "停止旧容器..."
 docker-compose -f "${COMPOSE_FILE}" down || true
 
-# 清理旧的未使用镜像（可选，节省空间）
-log_info "清理未使用的 Docker 镜像..."
-docker image prune -f || true
-
-# 构建新镜像
+# 构建新镜像（使用缓存，如果 pom.xml 未变化会复用依赖层）
 log_info "构建 Docker 镜像（这可能需要几分钟）..."
-docker-compose -f "${COMPOSE_FILE}" build --no-cache || {
+log_info "提示：如果 pom.xml 未变化，将复用已下载的依赖，节省时间和空间"
+docker-compose -f "${COMPOSE_FILE}" build || {
     log_error "Docker 镜像构建失败"
     exit 1
 }
+
+# 清理构建缓存和未使用的镜像（节省空间）
+log_info "清理未使用的 Docker 资源..."
+docker builder prune -f --filter "until=24h" || true  # 清理24小时前的构建缓存
+docker image prune -f || true  # 清理未使用的镜像
 
 # 启动容器
 log_info "启动容器..."
