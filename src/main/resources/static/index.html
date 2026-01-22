@@ -15,19 +15,75 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
+            margin: 0;
         }
 
         .container {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
+            padding: 30px;
+            max-width: 1400px;
             width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 40px);
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 30px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 0 0 450px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+            padding: 20px;
+            border-right: 2px solid #e0e0e0;
+            background: #ffffff;
+        }
+
+        /* 隐藏滚动条但保持滚动功能 */
+        #uploadTab .left-panel {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+
+        #uploadTab .left-panel::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            min-height: 600px;
+            padding: 20px;
+            overflow-y: auto;
+            background: #ffffff;
+            position: relative;
+        }
+
+        /* 确保空状态提示在右侧面板中正确显示 */
+        .right-panel .empty-state {
+            width: 100%;
+            flex: 1;
+            min-height: 500px;
+        }
+
+        /* 黑话盒子右侧面板特殊样式 */
+        #slangTab .right-panel {
+            align-items: stretch;
+            justify-content: flex-start;
         }
 
         h1 {
@@ -53,6 +109,7 @@
             transition: all 0.3s ease;
             background: #f8f9ff;
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .upload-area:hover {
@@ -89,6 +146,7 @@
             font-weight: 500;
             text-align: center;
             margin-bottom: 15px;
+            width: 100%;
         }
 
         #fileInput {
@@ -96,19 +154,60 @@
         }
 
         .preview-area {
-            margin-top: 20px;
-            display: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            min-height: 400px;
+            justify-content: center;
+            position: relative;
         }
 
         .preview-area.active {
-            display: block;
+            display: flex;
+        }
+
+        .preview-area:not(.active) #previewImage {
+            display: none;
+        }
+
+        /* 空状态提示 */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+            color: #999;
+            min-height: 400px;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            color: #999;
+            line-height: 1.6;
+        }
+
+        .empty-state-hint {
+            font-size: 14px;
+            color: #bbb;
+            margin-top: 10px;
         }
 
         .preview-image {
-            width: 100%;
+            max-width: 100%;
+            max-height: 500px;
             border-radius: 10px;
             margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            object-fit: contain;
         }
 
         .btn {
@@ -137,12 +236,14 @@
         }
 
         .result-area {
-            margin-top: 30px;
             display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
         }
 
         .result-area.active {
-            display: block;
+            display: flex;
         }
 
         .result-title {
@@ -154,20 +255,25 @@
         }
 
         .result-image {
-            width: 100%;
+            max-width: 100%;
+            max-height: 500px;
             border-radius: 10px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             margin-bottom: 15px;
+            object-fit: contain;
         }
 
         .loading {
             text-align: center;
             padding: 20px;
             display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .loading.active {
-            display: block;
+            display: flex;
         }
 
         .spinner {
@@ -197,6 +303,8 @@
             border-radius: 10px;
             margin-top: 15px;
             display: none;
+            width: 100%;
+            text-align: center;
         }
 
         .error.active {
@@ -456,27 +564,39 @@
         /* 图库相关样式 */
         .tab-buttons {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e0e0e0;
+            gap: 0;
+            margin-bottom: 30px;
+            background: transparent;
+            padding: 0 0 15px 0;
+            border-radius: 0;
+            justify-content: center;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .tab-btn {
-            flex: 1;
-            padding: 12px 20px;
+            flex: 0 0 auto;
+            padding: 10px 24px;
             border: none;
             background: transparent;
             color: #666;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
             transition: all 0.3s;
+            border-radius: 6px;
+            margin-right: 8px;
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
         }
 
         .tab-btn.active {
             color: #667eea;
-            border-bottom-color: #667eea;
+            background: #f0f0f0;
+            font-weight: 500;
         }
 
         .tab-content {
@@ -487,8 +607,21 @@
             display: block;
         }
 
+        #uploadTab.active,
+        #galleryTab.active,
+        #slangTab.active {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+
         .gallery-search {
-            margin-bottom: 20px;
+            margin-bottom: 0;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            border: none;
         }
 
         .search-input-wrapper {
@@ -553,14 +686,15 @@
 
         .gallery-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            max-height: 400px;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 12px;
             overflow-y: auto;
-            padding: 10px;
+            padding: 15px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             background: #f9f9f9;
+            max-height: calc(100vh - 300px);
+            width: 100%;
         }
 
         .gallery-item {
@@ -621,7 +755,9 @@
 
         /* 黑话盒子样式 */
         .slang-box {
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
         }
 
         .slang-header {
@@ -836,8 +972,9 @@
             background: #f8f9ff;
             border: 2px solid #e0e0e0;
             border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
+            padding: 25px;
+            margin-top: 0;
+            min-height: 400px;
         }
 
         .slang-word {
@@ -901,7 +1038,12 @@
 
         .slang-loading {
             text-align: center;
-            padding: 40px;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
         }
 
         .slang-loading .spinner {
@@ -917,6 +1059,46 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* 响应式布局 */
+        @media (max-width: 1024px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                flex: 1;
+                max-height: none;
+                border-right: none;
+                border-bottom: 2px solid #e0e0e0;
+                padding-bottom: 20px;
+                margin-bottom: 20px;
+            }
+
+            .right-panel {
+                margin-top: 0;
+                padding-top: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .main-layout {
+                gap: 20px;
+            }
+
+            .left-panel {
+                flex: 1;
+                padding: 15px;
+            }
+
+            .right-panel {
+                padding: 15px;
+            }
         }
     </style>
 </head>
@@ -934,204 +1116,253 @@
 
         <!-- 上传图片标签页 -->
         <div class="tab-content active" id="uploadTab">
-            <div class="upload-tip">💡 提示：请优先选择上传人物图片，效果更佳</div>
-            <div class="upload-area" id="uploadArea">
-            <div class="upload-icon">📸</div>
-            <div class="upload-text">点击或拖拽图片到这里</div>
-            <div class="upload-hint">支持 JPG、PNG 格式，最大 10MB</div>
-            <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png">
-        </div>
-
-        <div class="preview-area" id="previewArea">
-            <img id="previewImage" class="preview-image" alt="预览图片">
-            <div class="file-info" id="fileInfo"></div>
-            
-            <div class="emotion-selector" id="emotionSelector">
-                <div class="emotion-label">选择情绪：</div>
-                <div class="emotion-buttons">
-                    <button class="emotion-btn active" data-emotion="happy">😊 高兴</button>
-                    <button class="emotion-btn" data-emotion="sad">😢 伤心</button>
-                    <button class="emotion-btn" data-emotion="angry">😠 生气</button>
-                    <button class="emotion-btn" data-emotion="surprised">😲 惊讶</button>
-                    <button class="emotion-btn" data-emotion="confused">😕 困惑</button>
-                    <button class="emotion-btn" data-emotion="excited">🤩 兴奋</button>
-                    <button class="emotion-btn" data-emotion="calm">😌 平静</button>
-                    <button class="emotion-btn" data-emotion="shy">😳 害羞</button>
-                    <button class="emotion-btn" data-emotion="playful">😜 调皮</button>
-                </div>
-            </div>
-
-            <div class="text-input-area">
-                <div class="text-input-label">自定义文字（可选）：</div>
-                <input 
-                    type="text" 
-                    id="customText" 
-                    class="text-input" 
-                    placeholder="输入你想添加到图片上的文字，留空则不添加文字"
-                    maxlength="50"
-                >
-                <div class="text-input-hint">文字将显示在图片中间，支持自动换行</div>
-            </div>
-
-            <!-- 文字样式设置 -->
-            <div class="style-section" id="textStyleSection">
-                <div class="style-section-title" onclick="toggleSection('textStyleSection')">
-                    文字样式设置
-                </div>
-                <div class="style-section-content">
-                    <div class="style-row">
-                        <label class="style-label">文字位置：</label>
-                        <select id="textPosition" class="style-select">
-                            <option value="center">中间</option>
-                            <option value="top">顶部</option>
-                            <option value="bottom">底部</option>
-                        </select>
+            <div class="main-layout">
+                <!-- 左侧：设置区域 -->
+                <div class="left-panel">
+                    <div class="upload-tip">💡 提示：请优先选择上传人物图片，效果更佳</div>
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📸</div>
+                        <div class="upload-text">点击或拖拽图片到这里</div>
+                        <div class="upload-hint">支持 JPG、PNG 格式，最大 10MB</div>
+                        <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png">
                     </div>
-                    <div class="style-row">
-                        <label class="style-label">字体大小：</label>
-                        <input type="number" id="fontSize" class="style-input" value="100" min="100" max="200" placeholder="100-200">
-                    </div>
-                    <div class="style-row">
-                        <label class="style-label">文字颜色：</label>
-                        <div class="color-input-wrapper">
-                            <div class="color-preview" id="textColorPreview" style="background: rgb(255,255,255)" onclick="document.getElementById('textColor').click()"></div>
-                            <input type="color" id="textColor" class="color-input" value="#ffffff" style="display:none">
-                            <input type="text" id="textColorRgb" class="style-input" value="255,255,255" placeholder="RGB格式，如：255,255,255">
+
+                    <div class="emotion-selector" id="emotionSelector">
+                        <div class="emotion-label">选择情绪：</div>
+                        <div class="emotion-buttons">
+                            <button class="emotion-btn active" data-emotion="happy">😊 高兴</button>
+                            <button class="emotion-btn" data-emotion="sad">😢 伤心</button>
+                            <button class="emotion-btn" data-emotion="angry">😠 生气</button>
+                            <button class="emotion-btn" data-emotion="surprised">😲 惊讶</button>
+                            <button class="emotion-btn" data-emotion="confused">😕 困惑</button>
+                            <button class="emotion-btn" data-emotion="excited">🤩 兴奋</button>
+                            <button class="emotion-btn" data-emotion="calm">😌 平静</button>
+                            <button class="emotion-btn" data-emotion="shy">😳 害羞</button>
+                            <button class="emotion-btn" data-emotion="playful">😜 调皮</button>
                         </div>
                     </div>
-                    <div class="style-row">
-                        <label class="style-label">描边颜色：</label>
-                        <div class="color-input-wrapper">
-                            <div class="color-preview" id="strokeColorPreview" style="background: rgb(0,0,0)" onclick="document.getElementById('strokeColor').click()"></div>
-                            <input type="color" id="strokeColor" class="color-input" value="#000000" style="display:none">
-                            <input type="text" id="strokeColorRgb" class="style-input" value="0,0,0" placeholder="RGB格式，如：0,0,0">
+
+                    <!-- 图片风格选择 -->
+                    <div class="image-style-selector">
+                        <div class="style-label">图片风格：</div>
+                        <div class="style-buttons">
+                            <button class="style-btn active" data-style="chibi">🎨 柔和插画风</button>
+                            <button class="style-btn" data-style="sticker">📌 贴纸风</button>
                         </div>
                     </div>
-                    <div class="style-row">
-                        <label class="style-label">描边宽度：</label>
-                        <input type="number" id="strokeWidth" class="style-input" value="3" min="1" max="10">
+
+                    <div class="text-input-area">
+                        <div class="text-input-label">自定义文字（可选）：</div>
+                        <input 
+                            type="text" 
+                            id="customText" 
+                            class="text-input" 
+                            placeholder="输入你想添加到图片上的文字，留空则不添加文字"
+                            maxlength="50"
+                        >
+                        <div class="text-input-hint">文字将显示在图片中间，支持自动换行</div>
                     </div>
+
+                    <!-- 文字样式设置 -->
+                    <div class="style-section" id="textStyleSection">
+                        <div class="style-section-title" onclick="toggleSection('textStyleSection')">
+                            文字样式设置
+                        </div>
+                        <div class="style-section-content">
+                            <div class="style-row">
+                                <label class="style-label">文字位置：</label>
+                                <select id="textPosition" class="style-select">
+                                    <option value="center">中间</option>
+                                    <option value="top">顶部</option>
+                                    <option value="bottom">底部</option>
+                                </select>
+                            </div>
+                            <div class="style-row">
+                                <label class="style-label">字体大小：</label>
+                                <input type="number" id="fontSize" class="style-input" value="100" min="100" max="200" placeholder="100-200">
+                            </div>
+                            <div class="style-row">
+                                <label class="style-label">文字颜色：</label>
+                                <div class="color-input-wrapper">
+                                    <div class="color-preview" id="textColorPreview" style="background: rgb(255,255,255)" onclick="document.getElementById('textColor').click()"></div>
+                                    <input type="color" id="textColor" class="color-input" value="#ffffff" style="display:none">
+                                    <input type="text" id="textColorRgb" class="style-input" value="255,255,255" placeholder="RGB格式，如：255,255,255">
+                                </div>
+                            </div>
+                            <div class="style-row">
+                                <label class="style-label">描边颜色：</label>
+                                <div class="color-input-wrapper">
+                                    <div class="color-preview" id="strokeColorPreview" style="background: rgb(0,0,0)" onclick="document.getElementById('strokeColor').click()"></div>
+                                    <input type="color" id="strokeColor" class="color-input" value="#000000" style="display:none">
+                                    <input type="text" id="strokeColorRgb" class="style-input" value="0,0,0" placeholder="RGB格式，如：0,0,0">
+                                </div>
+                            </div>
+                            <div class="style-row">
+                                <label class="style-label">描边宽度：</label>
+                                <input type="number" id="strokeWidth" class="style-input" value="3" min="1" max="10">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" id="generateBtn">生成情绪表情</button>
+                </div>
+
+                <!-- 右侧：预览和结果区域 -->
+                <div class="right-panel">
+                    <!-- 空状态提示 -->
+                    <div class="empty-state" id="uploadEmptyState">
+                        <div class="empty-state-icon">📸</div>
+                        <div class="empty-state-text">上传图片后，预览将显示在这里</div>
+                        <div class="empty-state-hint">支持 JPG、PNG 格式，最大 10MB</div>
+                    </div>
+
+                    <div class="preview-area" id="previewArea" style="display: none;">
+                        <img id="previewImage" class="preview-image" alt="预览图片" style="display: none;">
+                        <div class="file-info" id="fileInfo"></div>
+                    </div>
+
+                    <div class="result-area" id="resultArea">
+                        <div class="result-title">✨ 生成完成！</div>
+                        <img id="resultImage" class="result-image" alt="生成的表情包">
+                        <button class="btn" onclick="downloadImage()">下载表情包</button>
+                        <button class="btn" onclick="resetForm()" style="background: #999; margin-top: 10px;">重新生成</button>
+                    </div>
+
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <div class="loading-text">AI 正在生成情绪表情图片...</div>
+                    </div>
+
+                    <div class="error" id="error"></div>
                 </div>
             </div>
-            
-            <button class="btn" id="generateBtn">生成情绪表情</button>
-        </div>
         </div>
 
         <!-- 图库选择标签页 -->
         <div class="tab-content" id="galleryTab">
-            <div class="gallery-search">
-                <div class="search-input-wrapper">
-                    <input type="text" id="gallerySearchInput" class="search-input" placeholder="搜索图片（如：猫、风景、人物）">
-                    <button class="search-btn" id="gallerySearchBtn">搜索</button>
+            <div class="main-layout">
+                <!-- 左侧：搜索和分类 -->
+                <div class="left-panel">
+                    <div class="gallery-search">
+                        <div class="search-input-wrapper">
+                            <input type="text" id="gallerySearchInput" class="search-input" placeholder="搜索图片（如：猫、风景、人物）">
+                            <button class="search-btn" id="gallerySearchBtn">搜索</button>
+                        </div>
+                        <div class="category-buttons">
+                            <button class="category-btn active" data-category="local">😊</button>
+                            <button class="category-btn" data-category="beauty">靓女</button>
+                            <button class="category-btn" data-category="handsome">俊男</button>
+                            <button class="category-btn" data-category="adorable">萌物</button>
+                            <button class="category-btn" data-category="anime">动漫</button>
+                            <button class="category-btn" data-category="cartoon">卡通</button>
+                            <button class="category-btn" data-category="kawaii">二次元</button>
+                            <button class="category-btn" data-category="cute">可爱</button>
+                            <button class="category-btn" data-category="emotion">表情</button>
+                            <button class="category-btn" data-category="animals">动物</button>
+                            <button class="category-btn" data-category="nature">自然</button>
+                            <button class="category-btn" data-category="people">人物</button>
+                            <button class="category-btn" data-category="food">食物</button>
+                            <button class="category-btn" data-category="funny">搞笑</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="category-buttons">
-                    <button class="category-btn active" data-category="local">😊</button>
-                    <button class="category-btn" data-category="beauty">靓女</button>
-                    <button class="category-btn" data-category="handsome">俊男</button>
-                    <button class="category-btn" data-category="adorable">萌物</button>
-                    <button class="category-btn" data-category="anime">动漫</button>
-                    <button class="category-btn" data-category="cartoon">卡通</button>
-                    <button class="category-btn" data-category="kawaii">二次元</button>
-                    <button class="category-btn" data-category="cute">可爱</button>
-                    <button class="category-btn" data-category="emotion">表情</button>
-                    <button class="category-btn" data-category="animals">动物</button>
-                    <button class="category-btn" data-category="nature">自然</button>
-                    <button class="category-btn" data-category="people">人物</button>
-                    <button class="category-btn" data-category="food">食物</button>
-                    <button class="category-btn" data-category="funny">搞笑</button>
+
+                <!-- 右侧：图片网格 -->
+                <div class="right-panel" style="align-items: stretch;">
+                    <div class="gallery-grid" id="galleryGrid">
+                        <div class="gallery-loading">加载中...</div>
+                    </div>
+                    <button class="load-more-btn" id="loadMoreBtn" style="display: none; margin-top: 15px;">加载更多</button>
                 </div>
             </div>
-            <div class="gallery-grid" id="galleryGrid">
-                <div class="gallery-loading">加载中...</div>
-            </div>
-            <button class="load-more-btn" id="loadMoreBtn" style="display: none;">加载更多</button>
         </div>
 
         <!-- 黑话盒子标签页 -->
         <div class="tab-content" id="slangTab">
-            <div class="slang-box">
-                <div class="slang-header">
-                    <h3 style="margin-bottom: 10px; color: #333;">💬 黑话盒子</h3>
-                    <p style="color: #666; font-size: 14px; margin-bottom: 20px;">输入互联网黑话或网络用语，AI 帮你解释含义、来源和使用场景</p>
+            <div class="main-layout">
+                <!-- 左侧：输入和选项 -->
+                <div class="left-panel">
+                    <div class="slang-box">
+                        <div class="slang-header">
+                            <h3 style="margin-bottom: 10px; color: #333;">💬 黑话盒子</h3>
+                            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">输入互联网黑话或网络用语，AI 帮你解释含义、来源和使用场景</p>
+                        </div>
+                        <div class="slang-input-area">
+                            <div class="slang-input-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="slangInput" 
+                                    class="slang-input" 
+                                    placeholder="输入词语，如：yyds、破防、内卷、社死..."
+                                    maxlength="50"
+                                >
+                                <button class="slang-search-btn" id="slangSearchBtn">解释</button>
+                                <button class="slang-refresh-btn" id="slangRefreshBtn" title="刷新热门词语">
+                                    <span>↻</span>
+                                </button>
+                            </div>
+                            <div class="slang-examples-wrapper">
+                                <div class="slang-examples-header">
+                                    <span class="slang-examples-label">热门词语：</span>
+                                </div>
+                                <div class="slang-examples" id="slangExamples">
+                                    <span class="slang-loading-text" id="slangLoadingText">加载中...</span>
+                                </div>
+                            </div>
+                            <div class="slang-industry-wrapper">
+                                <div class="slang-industry-header">
+                                    <span class="slang-industry-label">选择行业：</span>
+                                </div>
+                                <div class="slang-industry-buttons" id="slangIndustryButtons">
+                                    <button class="slang-industry-btn active" data-industry="">随机</button>
+                                    <button class="slang-industry-btn" data-industry="政治">政治</button>
+                                    <button class="slang-industry-btn" data-industry="游戏">游戏</button>
+                                    <button class="slang-industry-btn" data-industry="短视频">短视频</button>
+                                    <button class="slang-industry-btn" data-industry="娱乐圈">娱乐圈</button>
+                                    <button class="slang-industry-btn" data-industry="科技">科技</button>
+                                    <button class="slang-industry-btn" data-industry="体育">体育</button>
+                                    <button class="slang-industry-btn" data-industry="教育">教育</button>
+                                    <button class="slang-industry-btn" data-industry="财经">财经</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="时尚">时尚</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="美食">美食</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="旅游">旅游</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="汽车">汽车</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="房产">房产</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="医疗">医疗</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="职场">职场</button>
+                                    <button class="slang-industry-btn slang-industry-hidden" data-industry="生活">生活</button>
+                                </div>
+                                <div class="slang-industry-toggle" id="slangIndustryToggle">
+                                    <span class="slang-industry-icon">展开更多 ▼</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="slang-input-area">
-                    <div class="slang-input-wrapper">
-                        <input 
-                            type="text" 
-                            id="slangInput" 
-                            class="slang-input" 
-                            placeholder="输入词语，如：yyds、破防、内卷、社死..."
-                            maxlength="50"
-                        >
-                        <button class="slang-search-btn" id="slangSearchBtn">解释</button>
-                        <button class="slang-refresh-btn" id="slangRefreshBtn" title="刷新热门词语">
-                            <span>↻</span>
-                        </button>
+
+                <!-- 右侧：解释结果 -->
+                <div class="right-panel">
+                    <!-- 空状态提示 -->
+                    <div class="empty-state" id="slangEmptyState" style="display: flex;">
+                        <div class="empty-state-icon">💬</div>
+                        <div class="empty-state-text">输入词语后，解释结果将显示在这里</div>
+                        <div class="empty-state-hint">可以点击热门词语快速查询，或选择行业获取相关热词</div>
                     </div>
-                    <div class="slang-examples-wrapper">
-                        <div class="slang-examples-header">
-                            <span class="slang-examples-label">热门词语：</span>
+
+                    <div class="slang-result" id="slangResult" style="display: none; width: 100%;">
+                        <div class="slang-word" id="slangWord"></div>
+                        <div class="slang-short-explanation" id="slangShortExplanation"></div>
+                        <div class="slang-toggle" id="slangToggle" style="display: none;">
+                            <button class="slang-toggle-btn" id="slangToggleBtn">查看详细说明 ▼</button>
                         </div>
-                        <div class="slang-examples" id="slangExamples">
-                            <span class="slang-loading-text" id="slangLoadingText">加载中...</span>
-                        </div>
+                        <div class="slang-detailed-explanation" id="slangDetailedExplanation" style="display: none;"></div>
                     </div>
-                    <div class="slang-industry-wrapper">
-                        <div class="slang-industry-header">
-                            <span class="slang-industry-label">选择行业：</span>
-                        </div>
-                        <div class="slang-industry-buttons" id="slangIndustryButtons">
-                            <button class="slang-industry-btn active" data-industry="">随机</button>
-                            <button class="slang-industry-btn" data-industry="政治">政治</button>
-                            <button class="slang-industry-btn" data-industry="游戏">游戏</button>
-                            <button class="slang-industry-btn" data-industry="短视频">短视频</button>
-                            <button class="slang-industry-btn" data-industry="娱乐圈">娱乐圈</button>
-                            <button class="slang-industry-btn" data-industry="科技">科技</button>
-                            <button class="slang-industry-btn" data-industry="体育">体育</button>
-                            <button class="slang-industry-btn" data-industry="教育">教育</button>
-                            <button class="slang-industry-btn" data-industry="财经">财经</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="时尚">时尚</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="美食">美食</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="旅游">旅游</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="汽车">汽车</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="房产">房产</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="医疗">医疗</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="职场">职场</button>
-                            <button class="slang-industry-btn slang-industry-hidden" data-industry="生活">生活</button>
-                        </div>
-                        <div class="slang-industry-toggle" id="slangIndustryToggle">
-                            <span class="slang-industry-icon">展开更多 ▼</span>
-                        </div>
+                    <div class="slang-loading" id="slangLoading" style="display: none; width: 100%;">
+                        <div class="spinner"></div>
+                        <div class="loading-text">AI 正在分析中...</div>
                     </div>
-                </div>
-                <div class="slang-result" id="slangResult" style="display: none;">
-                    <div class="slang-word" id="slangWord"></div>
-                    <div class="slang-short-explanation" id="slangShortExplanation"></div>
-                    <div class="slang-toggle" id="slangToggle" style="display: none;">
-                        <button class="slang-toggle-btn" id="slangToggleBtn">查看详细说明 ▼</button>
-                    </div>
-                    <div class="slang-detailed-explanation" id="slangDetailedExplanation" style="display: none;"></div>
-                </div>
-                <div class="slang-loading" id="slangLoading" style="display: none;">
-                    <div class="spinner"></div>
-                    <div class="loading-text">AI 正在分析中...</div>
                 </div>
             </div>
-        </div>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <div class="loading-text">AI 正在生成情绪表情图片...</div>
-        </div>
-
-        <div class="error" id="error"></div>
-
-        <div class="result-area" id="resultArea">
-            <div class="result-title">✨ 生成完成！</div>
-            <img id="resultImage" class="result-image" alt="生成的表情包">
-            <button class="btn" onclick="downloadImage()">下载表情包</button>
-            <button class="btn" onclick="resetForm()" style="background: #999; margin-top: 10px;">重新生成</button>
         </div>
         
         <!-- 作者信息 -->
@@ -1169,6 +1400,29 @@
         let selectedGalleryImage = null;
         let galleryImages = [];
 
+        // 初始化空状态提示
+        function initEmptyStates() {
+            // 初始化上传图片标签页的空状态
+            const uploadEmptyState = document.getElementById('uploadEmptyState');
+            const previewArea = document.getElementById('previewArea');
+            if (uploadEmptyState && previewArea && !previewArea.classList.contains('active')) {
+                uploadEmptyState.style.display = 'flex';
+            }
+
+            // 初始化黑话盒子标签页的空状态
+            const slangEmptyState = document.getElementById('slangEmptyState');
+            const slangResult = document.getElementById('slangResult');
+            const slangLoading = document.getElementById('slangLoading');
+            if (slangEmptyState && slangResult && slangLoading) {
+                if (slangResult.style.display === 'none' && slangLoading.style.display === 'none') {
+                    slangEmptyState.style.display = 'flex';
+                }
+            }
+        }
+
+        // 页面加载完成后初始化
+        initEmptyStates();
+
         // 标签页切换
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -1195,6 +1449,15 @@
                     if (existingTags.length === 0) {
                         loadHotSlangs();
                     }
+                    // 如果没有结果，显示空状态提示
+                    setTimeout(() => {
+                        const slangResult = document.getElementById('slangResult');
+                        const slangLoading = document.getElementById('slangLoading');
+                        const slangEmptyState = document.getElementById('slangEmptyState');
+                        if (slangEmptyState && slangResult && slangResult.style.display === 'none' && slangLoading && slangLoading.style.display === 'none') {
+                            slangEmptyState.style.display = 'flex';
+                        }
+                    }, 100);
                 }
             });
         });
@@ -1304,8 +1567,13 @@
                     // 设置预览图片（不直接生成，让用户设置参数后点击生成按钮）
                     selectedFile = null; // 清除上传的文件
                     previewImage.src = url;
+                    previewImage.style.display = 'block';
+                    previewArea.style.display = 'flex';
                     previewArea.classList.add('active');
                     fileInfo.textContent = `图库图片 | URL: ${url.substring(0, 30)}...`;
+                    // 隐藏空状态提示
+                    const uploadEmptyState = document.getElementById('uploadEmptyState');
+                    if (uploadEmptyState) uploadEmptyState.style.display = 'none';
                     
                     // 切换到上传标签页，让用户设置情绪、文字、样式、滤镜
                     document.querySelector('.tab-btn[data-tab="upload"]').click();
@@ -1380,8 +1648,13 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 previewImage.src = e.target.result;
+                previewImage.style.display = 'block';
+                previewArea.style.display = 'flex';
                 previewArea.classList.add('active');
                 fileInfo.textContent = `文件名: ${file.name} | 大小: ${(file.size / 1024).toFixed(2)} KB`;
+                // 隐藏空状态提示
+                const uploadEmptyState = document.getElementById('uploadEmptyState');
+                if (uploadEmptyState) uploadEmptyState.style.display = 'none';
             };
             reader.readAsDataURL(file);
         }
@@ -1521,9 +1794,14 @@
             selectedGalleryImage = null;
             resultImageUrl = null;
             previewArea.classList.remove('active');
+            previewArea.style.display = 'none';
+            previewImage.style.display = 'none';
             resultArea.classList.remove('active');
             fileInput.value = '';
             customTextInput.value = '';
+            // 显示空状态提示
+            const uploadEmptyState = document.getElementById('uploadEmptyState');
+            if (uploadEmptyState) uploadEmptyState.style.display = 'flex';
             // 清除图库选中状态
             galleryGrid.querySelectorAll('.gallery-item').forEach(i => {
                 i.classList.remove('selected');
@@ -1704,6 +1982,9 @@
             slangResult.style.display = 'none';
             slangSearchBtn.disabled = true;
             hideError();
+            // 隐藏空状态提示
+            const slangEmptyState = document.getElementById('slangEmptyState');
+            if (slangEmptyState) slangEmptyState.style.display = 'none';
 
             try {
                 const response = await fetch(`/api/meme/slang/explain?word=${encodeURIComponent(word)}`);
@@ -1728,14 +2009,32 @@
                     }
                     
                     slangResult.style.display = 'block';
+                    // 隐藏空状态提示
+                    const slangEmptyState = document.getElementById('slangEmptyState');
+                    if (slangEmptyState) slangEmptyState.style.display = 'none';
                 } else {
                     showError(data.message || '解释失败，请重试');
+                    // 显示空状态提示
+                    const slangEmptyState = document.getElementById('slangEmptyState');
+                    if (slangEmptyState) slangEmptyState.style.display = 'flex';
                 }
             } catch (err) {
                 showError('网络错误：' + err.message);
+                // 显示空状态提示
+                const slangEmptyState = document.getElementById('slangEmptyState');
+                if (slangEmptyState) slangEmptyState.style.display = 'flex';
             } finally {
                 slangLoading.style.display = 'none';
                 slangSearchBtn.disabled = false;
+                // 如果加载完成后没有结果，显示空状态提示
+                setTimeout(() => {
+                    const slangResult = document.getElementById('slangResult');
+                    const slangLoading = document.getElementById('slangLoading');
+                    const slangEmptyState = document.getElementById('slangEmptyState');
+                    if (slangEmptyState && slangResult && slangResult.style.display === 'none' && slangLoading && slangLoading.style.display === 'none') {
+                        slangEmptyState.style.display = 'flex';
+                    }
+                }, 100);
             }
         }
 
