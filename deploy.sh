@@ -141,18 +141,16 @@ fi
 log_info "停止旧容器..."
 docker-compose -f "${COMPOSE_FILE}" down || true
 
-# 构建新镜像（使用缓存，如果 pom.xml 未变化会复用依赖层）
+# 清理旧的未使用镜像（可选，节省空间）
+log_info "清理未使用的 Docker 镜像..."
+docker image prune -f || true
+
+# 构建新镜像
 log_info "构建 Docker 镜像（这可能需要几分钟）..."
-log_info "提示：如果 pom.xml 未变化，将复用已下载的依赖，节省时间和空间"
-docker-compose -f "${COMPOSE_FILE}" build || {
+docker-compose -f "${COMPOSE_FILE}" build --no-cache || {
     log_error "Docker 镜像构建失败"
     exit 1
 }
-
-# 清理构建缓存和未使用的镜像（节省空间）
-log_info "清理未使用的 Docker 资源..."
-docker builder prune -f --filter "until=24h" || true  # 清理24小时前的构建缓存
-docker image prune -f || true  # 清理未使用的镜像
 
 # 启动容器
 log_info "启动容器..."

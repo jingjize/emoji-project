@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI表情盒子</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=ZCOOL+KuaiLe&display=swap');
+
+        :root {
+            --bg: #f6f8fb;
+            --bg-2: #eef1f5;
+            --surface: #ffffff;
+            --surface-2: #f6f8fb;
+            --surface-3: #eef2f6;
+            --text: #2a323b;
+            --muted: #5f6c7a;
+            --border: #c0c9d2;
+            --accent: #9fc7d9;
+            --accent-2: #b6d7e5;
+            --accent-3: #cfe3ed;
+            --danger: #ff6b6b;
+            --shadow: 0 18px 45px rgba(42, 50, 59, 0.18);
+        }
         * {
             margin: 0;
             padding: 0;
@@ -12,17 +29,43 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #5fa7b3 0%, #7ec6b1 50%, #6fbfd6 100%);
             min-height: 100vh;
             padding: 20px;
             margin: 0;
+            color: var(--text);
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                repeating-linear-gradient(120deg, rgba(0, 0, 0, 0.02) 0 1px, transparent 1px 6px);
+            opacity: 0.12;
+            pointer-events: none;
+            mix-blend-mode: multiply;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(700px 500px at 15% 20%, rgba(63, 111, 153, 0.08), transparent 65%),
+                radial-gradient(700px 500px at 85% 20%, rgba(95, 143, 184, 0.06), transparent 70%);
+            opacity: 0.35;
+            pointer-events: none;
+            mix-blend-mode: screen;
         }
 
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow: var(--shadow);
+            border: none;
             padding: 30px;
             max-width: 1400px;
             width: 100%;
@@ -46,8 +89,9 @@
             overflow-y: auto;
             max-height: calc(100vh - 200px);
             padding: 20px;
-            border-right: 2px solid #e0e0e0;
-            background: #ffffff;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 16px;
         }
 
         /* 隐藏滚动条但保持滚动功能 */
@@ -69,7 +113,8 @@
             min-height: 600px;
             padding: 20px;
             overflow-y: auto;
-            background: #ffffff;
+            background: var(--surface);
+            border-radius: 16px;
             position: relative;
         }
 
@@ -86,40 +131,53 @@
             justify-content: flex-start;
         }
 
+        .header-area {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 18px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 6px 18px rgba(42, 50, 59, 0.08);
+            border: none;
+        }
+
         h1 {
             text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 32px;
+            color: var(--text);
+            margin-bottom: 8px;
+            font-size: 34px;
+            letter-spacing: 1px;
+            font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
         }
 
         .subtitle {
             text-align: center;
-            color: #666;
-            margin-bottom: 30px;
+            color: var(--muted);
+            margin-bottom: 0;
             font-size: 14px;
         }
 
         .upload-area {
-            border: 3px dashed #667eea;
+            border: 2px dashed rgba(201, 255, 61, 0.6);
             border-radius: 15px;
             padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: #f8f9ff;
+            background: linear-gradient(180deg, rgba(201, 255, 61, 0.08), rgba(255, 138, 61, 0.05));
             margin-bottom: 20px;
             width: 100%;
         }
 
         .upload-area:hover {
-            border-color: #764ba2;
-            background: #f0f2ff;
+            border-color: var(--accent);
+            background: linear-gradient(180deg, rgba(201, 255, 61, 0.16), rgba(255, 138, 61, 0.08));
+            box-shadow: 0 12px 30px rgba(201, 255, 61, 0.15);
         }
 
         .upload-area.dragover {
-            border-color: #764ba2;
-            background: #e8ebff;
+            border-color: var(--accent-2);
+            background: linear-gradient(180deg, rgba(255, 138, 61, 0.2), rgba(201, 255, 61, 0.1));
             transform: scale(1.02);
         }
 
@@ -129,19 +187,19 @@
         }
 
         .upload-text {
-            color: #667eea;
+            color: var(--accent);
             font-size: 16px;
             font-weight: 500;
             margin-bottom: 5px;
         }
 
         .upload-hint {
-            color: #999;
+            color: var(--muted);
             font-size: 12px;
         }
 
         .upload-tip {
-            color: #ff4444;
+            color: #ffb34d;
             font-size: 13px;
             font-weight: 500;
             text-align: center;
@@ -179,7 +237,7 @@
             justify-content: center;
             padding: 60px 20px;
             text-align: center;
-            color: #999;
+            color: var(--muted);
             min-height: 400px;
         }
 
@@ -191,13 +249,13 @@
 
         .empty-state-text {
             font-size: 16px;
-            color: #999;
+            color: var(--muted);
             line-height: 1.6;
         }
 
         .empty-state-hint {
             font-size: 14px;
-            color: #bbb;
+            color: #7f8780;
             margin-top: 10px;
         }
 
@@ -206,33 +264,41 @@
             max-height: 500px;
             border-radius: 10px;
             margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             object-fit: contain;
         }
 
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--accent);
+            color: #111312;
             border: none;
             padding: 12px 30px;
             border-radius: 25px;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
             width: 100%;
             margin-top: 15px;
+            letter-spacing: 0.3px;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 28px rgba(201, 255, 61, 0.35);
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn.secondary {
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+            margin-top: 10px;
         }
 
         .result-area {
@@ -247,7 +313,7 @@
         }
 
         .result-title {
-            color: #333;
+            color: var(--text);
             font-size: 18px;
             font-weight: 600;
             margin-bottom: 15px;
@@ -258,7 +324,7 @@
             max-width: 100%;
             max-height: 500px;
             border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             margin-bottom: 15px;
             object-fit: contain;
         }
@@ -277,8 +343,8 @@
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--accent);
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -292,19 +358,20 @@
         }
 
         .loading-text {
-            color: #667eea;
+            color: var(--accent-3);
             font-size: 14px;
         }
 
         .error {
-            background: #fee;
-            color: #c33;
+            background: rgba(255, 93, 93, 0.12);
+            color: #ffb3b3;
             padding: 15px;
             border-radius: 10px;
             margin-top: 15px;
             display: none;
             width: 100%;
             text-align: center;
+            border: 1px solid rgba(255, 93, 93, 0.3);
         }
 
         .error.active {
@@ -312,12 +379,13 @@
         }
 
         .file-info {
-            background: #f5f5f5;
+            background: var(--surface-3);
             padding: 10px;
             border-radius: 8px;
             margin-top: 10px;
             font-size: 12px;
-            color: #666;
+            color: var(--muted);
+            border: 1px solid var(--border);
         }
 
         .emotion-selector {
@@ -326,7 +394,7 @@
 
         .emotion-label {
             font-size: 14px;
-            color: #333;
+            color: var(--text);
             margin-bottom: 10px;
             font-weight: 500;
         }
@@ -341,25 +409,25 @@
             flex: 1;
             min-width: 80px;
             padding: 10px 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 20px;
-            background: white;
-            color: #666;
+            background: var(--surface-2);
+            color: var(--muted);
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .emotion-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: var(--accent);
+            color: var(--accent);
             transform: translateY(-2px);
         }
 
         .emotion-btn.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            border-color: transparent;
+            background: var(--accent);
+            color: #111312;
         }
 
         .text-input-area {
@@ -368,7 +436,7 @@
 
         .text-input-label {
             font-size: 14px;
-            color: #333;
+            color: var(--text);
             margin-bottom: 10px;
             font-weight: 500;
         }
@@ -376,32 +444,40 @@
         .text-input {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 10px;
             font-size: 14px;
             font-family: inherit;
             transition: all 0.3s ease;
             box-sizing: border-box;
+            background: var(--surface-3);
+            color: var(--text);
         }
 
         .text-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(201, 255, 61, 0.15);
         }
 
         .text-input-hint {
             font-size: 12px;
-            color: #999;
+            color: var(--muted);
             margin-top: 5px;
+        }
+
+        .text-input::placeholder,
+        .search-input::placeholder,
+        .slang-input::placeholder {
+            color: rgba(43, 43, 37, 0.45);
         }
 
         .footer-info {
             text-align: center;
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-            color: #999;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
             font-size: 12px;
             line-height: 1.6;
         }
@@ -412,16 +488,16 @@
 
         .style-section {
             margin: 20px 0;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 15px;
-            background: #f9f9f9;
+            background: var(--surface-3);
         }
 
         .style-section-title {
             font-size: 14px;
             font-weight: 600;
-            color: #333;
+            color: var(--text);
             margin-bottom: 15px;
             cursor: pointer;
             display: flex;
@@ -456,27 +532,30 @@
 
         .style-label {
             font-size: 13px;
-            color: #666;
+            color: var(--muted);
             min-width: 80px;
         }
 
         .style-input {
             width: 100px;
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 13px;
             text-align: center;
             flex-shrink: 0;
+            background: var(--surface-2);
+            color: var(--text);
         }
 
         .style-select {
             flex: 1;
             padding: 8px 12px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 13px;
-            background: white;
+            background: var(--surface-2);
+            color: var(--text);
         }
 
         .filter-buttons {
@@ -489,24 +568,24 @@
             flex: 1;
             min-width: 100px;
             padding: 10px 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 20px;
-            background: white;
-            color: #666;
+            background: var(--surface-2);
+            color: var(--muted);
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .filter-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .filter-btn.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            border-color: transparent;
+            background: var(--accent);
+            color: #111312;
         }
 
         .style-buttons {
@@ -519,24 +598,24 @@
             flex: 1;
             min-width: 100px;
             padding: 10px 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 20px;
-            background: white;
-            color: #666;
+            background: var(--surface-2);
+            color: var(--muted);
             font-size: 14px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
         .style-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .style-btn.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            border-color: transparent;
+            background: var(--accent);
+            color: #111312;
         }
 
         .color-input-wrapper {
@@ -548,7 +627,7 @@
         .color-preview {
             width: 40px;
             height: 30px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             border-radius: 4px;
             cursor: pointer;
         }
@@ -556,9 +635,11 @@
         .color-input {
             width: 100px;
             padding: 6px;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             border-radius: 4px;
             font-size: 12px;
+            background: var(--surface-2);
+            color: var(--text);
         }
 
         /* 图库相关样式 */
@@ -570,7 +651,7 @@
             padding: 0 0 15px 0;
             border-radius: 0;
             justify-content: center;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 1px solid var(--border);
         }
 
         .tab-btn {
@@ -578,7 +659,7 @@
             padding: 10px 24px;
             border: none;
             background: transparent;
-            color: #666;
+            color: var(--muted);
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
@@ -589,14 +670,15 @@
         }
 
         .tab-btn:hover {
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
+            color: var(--accent);
+            background: rgba(201, 255, 61, 0.08);
         }
 
         .tab-btn.active {
-            color: #667eea;
-            background: #f0f0f0;
+            color: var(--text);
+            background: rgba(201, 255, 61, 0.16);
             font-weight: 500;
+            box-shadow: inset 0 0 0 1px rgba(201, 255, 61, 0.2);
         }
 
         .tab-content {
@@ -633,15 +715,17 @@
         .search-input {
             flex: 1;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 10px;
             font-size: 14px;
+            background: var(--surface-3);
+            color: var(--text);
         }
 
         .search-btn {
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--accent);
+            color: #111312;
             border: none;
             border-radius: 10px;
             font-size: 14px;
@@ -652,7 +736,7 @@
 
         .search-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 24px rgba(201, 255, 61, 0.35);
         }
 
         .category-buttons {
@@ -664,24 +748,24 @@
 
         .category-btn {
             padding: 8px 16px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 20px;
-            background: white;
-            color: #666;
+            background: var(--surface-2);
+            color: var(--muted);
             font-size: 13px;
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .category-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .category-btn.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            border-color: transparent;
+            background: var(--accent);
+            color: #111312;
         }
 
         .gallery-grid {
@@ -690,9 +774,9 @@
             gap: 12px;
             overflow-y: auto;
             padding: 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 10px;
-            background: #f9f9f9;
+            background: var(--surface-3);
             max-height: calc(100vh - 300px);
             width: 100%;
         }
@@ -709,13 +793,13 @@
 
         .gallery-item:hover {
             transform: scale(1.05);
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            border-color: var(--accent);
+            box-shadow: 0 8px 20px rgba(201, 255, 61, 0.25);
         }
 
         .gallery-item.selected {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+            border-color: var(--accent-2);
+            box-shadow: 0 0 0 3px rgba(255, 138, 61, 0.2);
         }
 
         .gallery-item img {
@@ -727,22 +811,22 @@
         .gallery-loading {
             text-align: center;
             padding: 40px;
-            color: #999;
+            color: var(--muted);
         }
 
         .gallery-empty {
             text-align: center;
             padding: 40px;
-            color: #999;
+            color: var(--muted);
         }
 
         .load-more-btn {
             width: 100%;
             padding: 12px;
             margin-top: 15px;
-            background: #f0f0f0;
-            color: #666;
-            border: 2px solid #e0e0e0;
+            background: var(--surface-2);
+            color: var(--muted);
+            border: 1px solid var(--border);
             border-radius: 10px;
             font-size: 14px;
             cursor: pointer;
@@ -750,7 +834,8 @@
         }
 
         .load-more-btn:hover {
-            background: #e0e0e0;
+            background: rgba(201, 255, 61, 0.12);
+            color: var(--text);
         }
 
         /* 黑话盒子样式 */
@@ -777,23 +862,25 @@
         .slang-input {
             flex: 1;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 1px solid var(--border);
             border-radius: 10px;
             font-size: 14px;
             font-family: inherit;
             transition: all 0.3s ease;
+            background: var(--surface-3);
+            color: var(--text);
         }
 
         .slang-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(201, 255, 61, 0.15);
         }
 
         .slang-search-btn {
             padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: var(--accent);
+            color: #111312;
             border: none;
             border-radius: 10px;
             font-size: 14px;
@@ -804,7 +891,7 @@
 
         .slang-search-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 24px rgba(201, 255, 61, 0.35);
         }
 
         .slang-search-btn:disabled {
@@ -815,11 +902,11 @@
 
         .slang-refresh-btn {
             padding: 12px 20px;
-            background: #f8f9ff;
-            border: 2px solid #667eea;
+            background: var(--surface-2);
+            border: 1px solid var(--accent);
             border-radius: 10px;
             font-size: 16px;
-            color: #667eea;
+            color: var(--accent);
             cursor: pointer;
             transition: all 0.3s;
             display: flex;
@@ -829,9 +916,9 @@
         }
 
         .slang-refresh-btn:hover {
-            background: #e8ebff;
+            background: rgba(201, 255, 61, 0.12);
             transform: translateY(-2px);
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 6px 18px rgba(201, 255, 61, 0.25);
         }
 
         .slang-refresh-btn:active {
@@ -858,7 +945,7 @@
 
         .slang-industry-label {
             font-size: 13px;
-            color: #999;
+            color: var(--muted);
             margin-right: 5px;
         }
 
@@ -877,24 +964,24 @@
 
         .slang-industry-btn {
             padding: 6px 14px;
-            background: white;
-            border: 1px solid #e0e0e0;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
             border-radius: 20px;
             font-size: 13px;
-            color: #666;
+            color: var(--muted);
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .slang-industry-btn:hover {
-            border-color: #667eea;
-            color: #667eea;
+            border-color: var(--accent);
+            color: var(--accent);
         }
 
         .slang-industry-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #667eea;
+            background: var(--accent);
+            color: #111312;
+            border-color: transparent;
         }
 
         .slang-industry-hidden {
@@ -911,25 +998,25 @@
             padding: 12px 0;
             cursor: pointer;
             user-select: none;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid var(--border);
         }
 
         .slang-industry-icon {
             font-size: 12px;
             display: inline-block;
             padding: 6px 12px;
-            background: #f8f9ff;
-            border: 2px solid #667eea;
+            background: var(--surface-2);
+            border: 1px solid var(--accent);
             border-radius: 20px;
             transition: all 0.3s;
             line-height: 1;
             cursor: pointer;
-            color: #667eea;
+            color: var(--accent);
             white-space: nowrap;
         }
 
         .slang-industry-toggle:hover .slang-industry-icon {
-            background: #e8ebff;
+            background: rgba(201, 255, 61, 0.12);
             transform: scale(1.1);
         }
 
@@ -946,31 +1033,31 @@
 
         .slang-examples-label {
             font-size: 13px;
-            color: #999;
+            color: var(--muted);
             margin-right: 5px;
         }
 
         .slang-example-tag {
             padding: 6px 12px;
-            background: #f0f0f0;
-            border: 1px solid #e0e0e0;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
             border-radius: 20px;
             font-size: 13px;
-            color: #666;
+            color: var(--muted);
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .slang-example-tag:hover {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
+            background: var(--accent);
+            color: #111312;
+            border-color: transparent;
             transform: translateY(-2px);
         }
 
         .slang-result {
-            background: #f8f9ff;
-            border: 2px solid #e0e0e0;
+            background: var(--surface-3);
+            border: 1px solid var(--border);
             border-radius: 15px;
             padding: 25px;
             margin-top: 0;
@@ -980,22 +1067,22 @@
         .slang-word {
             font-size: 24px;
             font-weight: bold;
-            color: #667eea;
+            color: var(--accent);
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
+            border-bottom: 1px solid var(--border);
         }
 
         .slang-short-explanation {
             font-size: 16px;
             line-height: 1.8;
-            color: #333;
+            color: var(--text);
             font-weight: 500;
             margin-bottom: 15px;
             padding: 15px;
-            background: white;
+            background: var(--surface-2);
             border-radius: 8px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid var(--accent);
         }
 
         .slang-toggle {
@@ -1005,35 +1092,35 @@
 
         .slang-toggle-btn {
             padding: 8px 20px;
-            background: #f0f0f0;
-            border: 1px solid #e0e0e0;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
             border-radius: 20px;
             font-size: 13px;
-            color: #667eea;
+            color: var(--accent);
             cursor: pointer;
             transition: all 0.3s;
         }
 
         .slang-toggle-btn:hover {
-            background: #e0e0e0;
-            border-color: #667eea;
+            background: rgba(201, 255, 61, 0.12);
+            border-color: var(--accent);
         }
 
         .slang-detailed-explanation {
             font-size: 14px;
             line-height: 1.8;
-            color: #666;
+            color: var(--muted);
             white-space: pre-wrap;
             word-wrap: break-word;
             padding: 15px;
-            background: #f9f9f9;
+            background: var(--surface-2);
             border-radius: 8px;
             margin-top: 10px;
         }
 
         .slang-loading-text {
             font-size: 13px;
-            color: #999;
+            color: var(--muted);
         }
 
         .slang-loading {
@@ -1049,11 +1136,19 @@
         .slang-loading .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 4px solid rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--accent);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 15px;
+        }
+
+        .slang-header h3 {
+            color: var(--text);
+        }
+
+        .slang-header p {
+            color: var(--muted);
         }
 
         @keyframes spin {
@@ -1071,7 +1166,7 @@
                 flex: 1;
                 max-height: none;
                 border-right: none;
-                border-bottom: 2px solid #e0e0e0;
+                border-bottom: 1px solid var(--border);
                 padding-bottom: 20px;
                 margin-bottom: 20px;
             }
@@ -1104,8 +1199,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎭 AI表情盒子</h1>
-        <p class="subtitle">AI生成表情包、头像，智能解释网络黑话</p>
+        <div class="header-area">
+            <h1>🎭 AI表情盒子</h1>
+            <p class="subtitle">AI生成表情包、头像，智能解释网络黑话</p>
+        </div>
 
         <!-- 标签页切换 -->
         <div class="tab-buttons">
@@ -1225,7 +1322,7 @@
                         <div class="result-title">✨ 生成完成！</div>
                         <img id="resultImage" class="result-image" alt="生成的表情包">
                         <button class="btn" onclick="downloadImage()">下载表情包</button>
-                        <button class="btn" onclick="resetForm()" style="background: #999; margin-top: 10px;">重新生成</button>
+                        <button class="btn secondary" onclick="resetForm()">重新生成</button>
                     </div>
 
                     <div class="loading" id="loading">
@@ -1284,8 +1381,8 @@
                 <div class="left-panel">
                     <div class="slang-box">
                         <div class="slang-header">
-                            <h3 style="margin-bottom: 10px; color: #333;">💬 黑话盒子</h3>
-                            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">输入互联网黑话或网络用语，AI 帮你解释含义、来源和使用场景</p>
+                            <h3 style="margin-bottom: 10px;">💬 黑话盒子</h3>
+                            <p style="font-size: 14px; margin-bottom: 20px;">输入互联网黑话或网络用语，AI 帮你解释含义、来源和使用场景</p>
                         </div>
                         <div class="slang-input-area">
                             <div class="slang-input-wrapper">
