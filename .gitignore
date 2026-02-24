@@ -60,3 +60,5 @@ miniprogram/node_modules/
 *.pem
 .env
 .env.local
+
+.cursor/

@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI表情盒子</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=ZCOOL+KuaiLe&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap');
 
         :root {
-            --bg: #f6f8fb;
-            --bg-2: #eef1f5;
+            --bg: #0f2433;
+            --bg-2: #123043;
             --surface: #ffffff;
-            --surface-2: #f6f8fb;
-            --surface-3: #eef2f6;
-            --text: #2a323b;
-            --muted: #5f6c7a;
-            --border: #c0c9d2;
-            --accent: #9fc7d9;
-            --accent-2: #b6d7e5;
-            --accent-3: #cfe3ed;
+            --surface-2: #f3f7fb;
+            --surface-3: #e8eef5;
+            --text: #0f2a3d;
+            --muted: #476277;
+            --border: #d4dde6;
+            --accent: #1d4ed8;
+            --accent-2: #2563eb;
+            --accent-3: #38bdf8;
             --danger: #ff6b6b;
-            --shadow: 0 18px 45px rgba(42, 50, 59, 0.18);
+            --shadow: 0 18px 45px rgba(9, 38, 56, 0.28);
         }
         * {
             margin: 0;
@@ -29,8 +29,8 @@
         }
 
         body {
-            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #5fa7b3 0%, #7ec6b1 50%, #6fbfd6 100%);
+            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #0f2433 0%, #143a52 50%, #102f43 100%);
             min-height: 100vh;
             padding: 20px;
             margin: 0;
@@ -43,7 +43,7 @@
             position: fixed;
             inset: 0;
             background:
-                repeating-linear-gradient(120deg, rgba(0, 0, 0, 0.02) 0 1px, transparent 1px 6px);
+                repeating-linear-gradient(120deg, rgba(56, 189, 248, 0.08) 0 1px, transparent 1px 6px);
             opacity: 0.12;
             pointer-events: none;
             mix-blend-mode: multiply;
@@ -54,9 +54,9 @@
             position: fixed;
             inset: 0;
             background:
-                radial-gradient(700px 500px at 15% 20%, rgba(63, 111, 153, 0.08), transparent 65%),
-                radial-gradient(700px 500px at 85% 20%, rgba(95, 143, 184, 0.06), transparent 70%);
-            opacity: 0.35;
+                radial-gradient(700px 500px at 15% 20%, rgba(56, 189, 248, 0.18), transparent 65%),
+                radial-gradient(700px 500px at 85% 20%, rgba(37, 99, 235, 0.16), transparent 70%);
+            opacity: 0.5;
             pointer-events: none;
             mix-blend-mode: screen;
         }
@@ -89,9 +89,11 @@
             overflow-y: auto;
             max-height: calc(100vh - 200px);
             padding: 20px;
-            border-right: 1px solid var(--border);
-            background: var(--surface);
+            border-right: none;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 16px 40px rgba(8, 145, 178, 0.10);
             border-radius: 16px;
+            backdrop-filter: blur(10px);
         }
 
         /* 隐藏滚动条但保持滚动功能 */
@@ -113,9 +115,11 @@
             min-height: 600px;
             padding: 20px;
             overflow-y: auto;
-            background: var(--surface);
+            background: rgba(255, 255, 255, 0.96);
             border-radius: 16px;
             position: relative;
+            box-shadow: 0 16px 40px rgba(8, 145, 178, 0.10);
+            backdrop-filter: blur(10px);
         }
 
         /* 确保空状态提示在右侧面板中正确显示 */
@@ -137,7 +141,7 @@
             padding: 18px 20px;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 6px 18px rgba(42, 50, 59, 0.08);
+            box-shadow: 0 10px 24px rgba(8, 145, 178, 0.12);
             border: none;
         }
 
@@ -146,8 +150,8 @@
             color: var(--text);
             margin-bottom: 8px;
             font-size: 34px;
-            letter-spacing: 1px;
-            font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+            letter-spacing: 0.5px;
+            font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif;
         }
 
         .subtitle {
@@ -158,26 +162,26 @@
         }
 
         .upload-area {
-            border: 2px dashed rgba(201, 255, 61, 0.6);
+            border: 2px dashed rgba(8, 145, 178, 0.45);
             border-radius: 15px;
             padding: 40px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s ease;
-            background: linear-gradient(180deg, rgba(201, 255, 61, 0.08), rgba(255, 138, 61, 0.05));
+            background: linear-gradient(180deg, rgba(34, 211, 238, 0.12), rgba(8, 145, 178, 0.08));
             margin-bottom: 20px;
             width: 100%;
         }
 
         .upload-area:hover {
             border-color: var(--accent);
-            background: linear-gradient(180deg, rgba(201, 255, 61, 0.16), rgba(255, 138, 61, 0.08));
-            box-shadow: 0 12px 30px rgba(201, 255, 61, 0.15);
+            background: linear-gradient(180deg, rgba(34, 211, 238, 0.18), rgba(8, 145, 178, 0.12));
+            box-shadow: 0 12px 30px rgba(8, 145, 178, 0.2);
         }
 
         .upload-area.dragover {
             border-color: var(--accent-2);
-            background: linear-gradient(180deg, rgba(255, 138, 61, 0.2), rgba(201, 255, 61, 0.1));
+            background: linear-gradient(180deg, rgba(8, 145, 178, 0.22), rgba(34, 211, 238, 0.16));
             transform: scale(1.02);
         }
 
@@ -187,7 +191,7 @@
         }
 
         .upload-text {
-            color: var(--accent);
+            color: var(--accent-2);
             font-size: 16px;
             font-weight: 500;
             margin-bottom: 5px;
@@ -199,7 +203,7 @@
         }
 
         .upload-tip {
-            color: #ffb34d;
+            color: var(--accent-2);
             font-size: 13px;
             font-weight: 500;
             text-align: center;
@@ -255,7 +259,7 @@
 
         .empty-state-hint {
             font-size: 14px;
-            color: #7f8780;
+            color: var(--muted);
             margin-top: 10px;
         }
 
@@ -270,7 +274,7 @@
 
         .btn {
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
             border: none;
             padding: 12px 30px;
             border-radius: 25px;
@@ -285,13 +289,31 @@
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(201, 255, 61, 0.35);
+            box-shadow: 0 8px 28px rgba(34, 197, 94, 0.28);
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+        }
+
+        .btn:focus-visible,
+        .tab-btn:focus-visible,
+        .emotion-btn:focus-visible,
+        .style-btn:focus-visible,
+        .filter-btn:focus-visible,
+        .category-btn:focus-visible,
+        .slang-industry-btn:focus-visible,
+        .slang-toggle-btn:focus-visible,
+        .slang-search-btn:focus-visible,
+        .search-btn:focus-visible,
+        .load-more-btn:focus-visible,
+        .text-input:focus-visible,
+        .search-input:focus-visible,
+        .slang-input:focus-visible {
+            outline: 2px solid rgba(34, 211, 238, 0.6);
+            outline-offset: 2px;
         }
 
         .btn.secondary {
@@ -427,7 +449,7 @@
         .emotion-btn.active {
             border-color: transparent;
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
         }
 
         .text-input-area {
@@ -457,7 +479,7 @@
         .text-input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(201, 255, 61, 0.15);
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.18);
         }
 
         .text-input-hint {
@@ -585,7 +607,7 @@
         .filter-btn.active {
             border-color: transparent;
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
         }
 
         .style-buttons {
@@ -615,7 +637,7 @@
         .style-btn.active {
             border-color: transparent;
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
         }
 
         .color-input-wrapper {
@@ -644,41 +666,43 @@
 
         /* 图库相关样式 */
         .tab-buttons {
-            display: flex;
-            gap: 0;
-            margin-bottom: 30px;
-            background: transparent;
-            padding: 0 0 15px 0;
-            border-radius: 0;
+            display: inline-flex;
+            gap: 6px;
+            margin: 0 auto 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 6px;
+            border-radius: 14px;
             justify-content: center;
-            border-bottom: 1px solid var(--border);
+            border: 1px solid rgba(8, 145, 178, 0.12);
+            box-shadow: 0 10px 24px rgba(8, 145, 178, 0.12);
+            width: fit-content;
         }
 
         .tab-btn {
             flex: 0 0 auto;
-            padding: 10px 24px;
+            padding: 10px 20px;
             border: none;
             background: transparent;
             color: var(--muted);
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
-            border-radius: 6px;
-            margin-right: 8px;
+            transition: all 0.2s ease;
+            border-radius: 10px;
+            margin-right: 0;
             position: relative;
         }
 
         .tab-btn:hover {
-            color: var(--accent);
-            background: rgba(201, 255, 61, 0.08);
+            color: var(--accent-2);
+            background: rgba(8, 145, 178, 0.08);
         }
 
         .tab-btn.active {
             color: var(--text);
-            background: rgba(201, 255, 61, 0.16);
+            background: rgba(8, 145, 178, 0.16);
             font-weight: 500;
-            box-shadow: inset 0 0 0 1px rgba(201, 255, 61, 0.2);
+            box-shadow: inset 0 0 0 1px rgba(8, 145, 178, 0.22);
         }
 
         .tab-content {
@@ -725,7 +749,7 @@
         .search-btn {
             padding: 12px 30px;
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
             border: none;
             border-radius: 10px;
             font-size: 14px;
@@ -736,7 +760,7 @@
 
         .search-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(201, 255, 61, 0.35);
+            box-shadow: 0 8px 24px rgba(8, 145, 178, 0.25);
         }
 
         .category-buttons {
@@ -765,7 +789,7 @@
         .category-btn.active {
             border-color: transparent;
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
         }
 
         .gallery-grid {
@@ -794,12 +818,12 @@
         .gallery-item:hover {
             transform: scale(1.05);
             border-color: var(--accent);
-            box-shadow: 0 8px 20px rgba(201, 255, 61, 0.25);
+            box-shadow: 0 8px 20px rgba(8, 145, 178, 0.22);
         }
 
         .gallery-item.selected {
             border-color: var(--accent-2);
-            box-shadow: 0 0 0 3px rgba(255, 138, 61, 0.2);
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
         }
 
         .gallery-item img {
@@ -834,7 +858,7 @@
         }
 
         .load-more-btn:hover {
-            background: rgba(201, 255, 61, 0.12);
+            background: rgba(8, 145, 178, 0.12);
             color: var(--text);
         }
 
@@ -874,13 +898,13 @@
         .slang-input:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(201, 255, 61, 0.15);
+            box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.18);
         }
 
         .slang-search-btn {
             padding: 12px 30px;
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
             border: none;
             border-radius: 10px;
             font-size: 14px;
@@ -891,7 +915,7 @@
 
         .slang-search-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(201, 255, 61, 0.35);
+            box-shadow: 0 8px 24px rgba(8, 145, 178, 0.25);
         }
 
         .slang-search-btn:disabled {
@@ -916,9 +940,9 @@
         }
 
         .slang-refresh-btn:hover {
-            background: rgba(201, 255, 61, 0.12);
+            background: rgba(8, 145, 178, 0.12);
             transform: translateY(-2px);
-            box-shadow: 0 6px 18px rgba(201, 255, 61, 0.25);
+            box-shadow: 0 6px 18px rgba(8, 145, 178, 0.2);
         }
 
         .slang-refresh-btn:active {
@@ -980,7 +1004,7 @@
 
         .slang-industry-btn.active {
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
             border-color: transparent;
         }
 
@@ -1016,7 +1040,7 @@
         }
 
         .slang-industry-toggle:hover .slang-industry-icon {
-            background: rgba(201, 255, 61, 0.12);
+            background: rgba(8, 145, 178, 0.12);
             transform: scale(1.1);
         }
 
@@ -1050,7 +1074,7 @@
 
         .slang-example-tag:hover {
             background: var(--accent);
-            color: #111312;
+            color: #ffffff;
             border-color: transparent;
             transform: translateY(-2px);
         }
@@ -1102,7 +1126,7 @@
         }
 
         .slang-toggle-btn:hover {
-            background: rgba(201, 255, 61, 0.12);
+            background: rgba(8, 145, 178, 0.12);
             border-color: var(--accent);
         }
 
